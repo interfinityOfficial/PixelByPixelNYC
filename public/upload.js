@@ -211,7 +211,6 @@ function uploadPhoto() {
     document.body.classList.remove('pixel-selection-mode');
     document.body.classList.remove('show-confirm');
     document.body.classList.add('uploading');
-    document.documentElement.style.setProperty('--upload-progress', '0%');
     if (window.exitPixelSelectionMode) {
         window.exitPixelSelectionMode();
     }
@@ -222,10 +221,10 @@ function uploadPhoto() {
         success(result) {
             uploadFile(result, selectedPixelData.x, selectedPixelData.y, (data) => {
                 fileInput.value = '';
-                if (data.data.duplicate) {
-                    showAlert('THIS IMAGE ALREADY EXISTS<br />PLEASE UPLOAD A NEW IMAGE', "OK");
-                } else if (data.success) {
-                    if (window.refreshPhotos) {
+                if (data.success) {
+                    if (data.data.duplicate) {
+                        showAlert('THIS IMAGE ALREADY EXISTS<br />PLEASE UPLOAD A NEW IMAGE', "OK");
+                    } else if (window.refreshPhotos) {
                         window.refreshPhotos();
                     }
                 } else {
@@ -249,28 +248,29 @@ function uploadFile(file, x, y, callback) {
     xhr.open('POST', '/upload/');
 
     // Upload progress
-    xhr.upload.addEventListener('progress', (e) => {
-        if (e.lengthComputable) {
-            const percent = (e.loaded / e.total) * 100;
-            console.log('Upload progress:', percent.toFixed(2));
-            document.documentElement.style.setProperty('--upload-progress', `${percent.toFixed(2)}%`);
-        }
-    });
+    // xhr.upload.addEventListener('progress', (e) => {
+    //     if (e.lengthComputable) {
+    //         const percent = (e.loaded / e.total) * 100;
+    //         console.log('Upload progress:', percent.toFixed(2));
+    //         document.documentElement.style.setProperty('--upload-progress', `${percent.toFixed(2)}%`);
+    //     }
+    // });
 
     xhr.onerror = () => {
         callback({ success: false, error: xhr.statusText });
-        document.documentElement.style.setProperty('--upload-progress', '100%');
     };
 
     xhr.onload = () => {
         if (xhr.status === 200) {
             callback({ success: true, data: JSON.parse(xhr.response) });
-            document.documentElement.style.setProperty('--upload-progress', '100%');
         } else {
             callback({ success: false, error: xhr.statusText });
-            document.documentElement.style.setProperty('--upload-progress', '100%');
         }
     };
 
-    xhr.send(formData);
+    try {
+        xhr.send(formData);
+    } catch (err) {
+        callback({ success: false, error: err.message });
+    }
 }
