@@ -200,7 +200,7 @@ app.post('/upload/', upload.single('image'), async (req, res) => {
         // Create canonical high-res buffer first for deterministic hashing
         const highResBuffer = await sharp(inputBuffer)
             .resize(1500, null, { withoutEnlargement: true })
-            .jpeg({ quality: 90 })
+            .jpeg({ quality: 70 })
             .toBuffer();
 
         // Compute SHA-256 of the canonical buffer to dedupe
