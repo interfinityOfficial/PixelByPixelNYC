@@ -148,7 +148,7 @@ input::placeholder {
   justify-content: center;
   align-items: center;
   font-size: max(min(4vw, 20px), 16px);
-  cursor: url("/assets/cursor-pointer-white.png"), pointer;
+  cursor: url("/assets/cursor-pointer.png"), pointer;
   transition: opacity 0.3s ease-in-out;
 }
 
