@@ -117,7 +117,7 @@ body {
   width: max(4vw, 50px);
   height: max(4vw, 50px);
   z-index: 3;
-  cursor: url("/assets/cursor-pointer.png"), pointer;
+  cursor: url("/assets/cursor-pointer-white.png"), pointer;
   display: flex;
   justify-content: center;
   align-items: center;
