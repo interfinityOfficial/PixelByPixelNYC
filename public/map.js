@@ -212,10 +212,10 @@ ctx.webkitImageSmoothingEnabled = false;
 ctx.msImageSmoothingEnabled = false;
 
 const colorMap = {
-    w: "#1E1E1E", // water
-    m: "#0A0A0A", // Manhattan
-    x: "#0A0A0A", // Bronx
-    b: "#0A0A0A", // Brooklyn + Queens
+    w: "#9EC9EB", // water
+    m: "#F7E5CD", // Manhattan
+    x: "#F7E5CD", // Bronx
+    b: "#F7E5CD", // Brooklyn + Queens
 };
 
 function getCanvasRect() {
@@ -711,7 +711,7 @@ canvas.addEventListener('wheel', e => {
 function drawMap(mapData) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.fillStyle = '#1E1E1E';
+    ctx.fillStyle = '#9EC9EB';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     drawGrid();
@@ -728,7 +728,7 @@ function drawMap(mapData) {
     for (let y = startY; y < endY; y++) {
         for (let x = startX; x < endX; x++) {
             const code = mapData[y][x];
-            const color = colorMap[code] || "#0A0A0A";
+            const color = colorMap[code] || "#ffffff";
 
             if (code != "w") {
                 ctx.fillStyle = color;
@@ -780,7 +780,7 @@ function drawMap(mapData) {
 }
 
 function drawGrid() {
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
     ctx.lineWidth = 1;
     ctx.beginPath();
 
