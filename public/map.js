@@ -586,13 +586,13 @@ canvas.addEventListener('click', e => {
     e.preventDefault();
     updateCursorPosition(e.clientX, e.clientY);
 
-    if (isPixelSelectionMode) {
-        // Don't select pixel if this was the end of a drag
-        if (dragOccurred) {
-            dragOccurred = false; // Reset for next interaction
-            return;
-        }
+    // Don't select pixel if this was the end of a drag
+    if (dragOccurred) {
+        dragOccurred = false; // Reset for next interaction
+        return;
+    }
 
+    if (isPixelSelectionMode) {
         // In pixel selection mode, select the clicked pixel
         const mapX = Math.floor((cursorX - offsetX) / (PIXEL_SIZE * scale));
         const mapY = Math.floor((cursorY - offsetY) / (PIXEL_SIZE * scale));
@@ -604,12 +604,6 @@ canvas.addEventListener('click', e => {
             handlePixelSelection(mapX, mapY);
         }
     } else {
-        // Don't zoom into photo if this was the end of a drag
-        if (dragOccurred) {
-            dragOccurred = false; // Reset for next interaction
-            return;
-        }
-
         // Normal photo zoom behavior
         const mapX = Math.floor((cursorX - offsetX) / (PIXEL_SIZE * scale));
         const mapY = Math.floor((cursorY - offsetY) / (PIXEL_SIZE * scale));
