@@ -54,6 +54,67 @@ let dragOccurred = false;
 let touchDragOccurred = false;
 const DRAG_THRESHOLD = 5; // Minimum pixels to move before considering it a drag
 
+// Photo animation system
+let photoAnimations = new Map(); // Maps photo id to animation data
+let animationStartTime = null;
+const FADE_DURATION = 300; // Duration of fade-in in milliseconds
+let isAnimatingPhotos = false;
+let hasInitiallyLoaded = false; // Track if photos have been initially loaded
+
+function initializePhotoAnimations(photosList) {
+    photoAnimations.clear();
+    animationStartTime = performance.now();
+    isAnimatingPhotos = true;
+
+    photosList.forEach(photo => {
+        const photoKey = `${photo.imageX},${photo.imageY}`;
+        photoAnimations.set(photoKey, {
+            delay: Math.random() * 1000, // Random delay up to 1 second
+            startTime: null,
+            alpha: 0
+        });
+    });
+
+    // Start animation loop
+    animatePhotos();
+}
+
+function animatePhotos() {
+    if (!isAnimatingPhotos) return;
+
+    const currentTime = performance.now();
+    const elapsed = currentTime - animationStartTime;
+    let allComplete = true;
+
+    photoAnimations.forEach((anim, key) => {
+        if (anim.alpha < 1) {
+            allComplete = false;
+
+            // Check if delay has passed
+            if (elapsed >= anim.delay) {
+                if (anim.startTime === null) {
+                    anim.startTime = currentTime;
+                }
+
+                // Calculate fade progress
+                const fadeElapsed = currentTime - anim.startTime;
+                const progress = Math.min(fadeElapsed / FADE_DURATION, 1);
+
+                // Ease out cubic for smooth fade
+                anim.alpha = 1 - Math.pow(1 - progress, 3);
+            }
+        }
+    });
+
+    drawMap(mapData);
+
+    if (!allComplete) {
+        requestAnimationFrame(animatePhotos);
+    } else {
+        isAnimatingPhotos = false;
+    }
+}
+
 function clampHexToHSL(hex, satRange = [40, 80], lightRange = [50, 80]) {
     hex = hex.replace(/^#/, '');
     const num = parseInt(hex, 16);
@@ -185,6 +246,19 @@ function refreshPhotos() {
                 document.body.classList.remove('uploaded');
             }, 300);
             photos = data.photos;
+
+            // Ensure new photos have animation data (but fully visible)
+            photos.forEach(photo => {
+                const photoKey = `${photo.imageX},${photo.imageY}`;
+                if (!photoAnimations.has(photoKey)) {
+                    photoAnimations.set(photoKey, {
+                        delay: 0,
+                        startTime: null,
+                        alpha: 1
+                    });
+                }
+            });
+
             drawMap(mapData);
         })
         .catch(error => {
@@ -305,7 +379,10 @@ fetch("/assets/map_data.json")
         drawMap(mapData);
 
         photos = window.__PHOTOS__;
-        drawMap(mapData);
+        if (!hasInitiallyLoaded) {
+            hasInitiallyLoaded = true;
+            initializePhotoAnimations(photos);
+        }
     });
 
 canvas.addEventListener('mousemove', e => {
@@ -825,12 +902,20 @@ function drawPhotos() {
         const screenY = Math.floor(y * PIXEL_SIZE * scale + offsetY);
         const screenSize = Math.ceil(PIXEL_SIZE * scale);
 
-        // Always draw the base color block
+        // Get animation alpha for this photo
+        const photoKey = `${photo.imageX},${photo.imageY}`;
+        const animData = photoAnimations.get(photoKey);
+        const animAlpha = animData ? animData.alpha : 1; // Default to 1 if no animation data
+
+        // Always draw the base color block with animation alpha
+        const prevAlpha = ctx.globalAlpha;
+        ctx.globalAlpha = animAlpha;
         ctx.fillStyle = clampHexToHSL(photo.color);
         ctx.fillRect(screenX, screenY, screenSize, screenSize);
+        ctx.globalAlpha = prevAlpha;
 
-        // Overlay the image with a fade between 4x and 5x
-        if (fadeAlpha > 0 && photo.imageLowRes) {
+        // Overlay the image with a fade between 4x and 5x, combined with animation alpha
+        if (fadeAlpha > 0 && animAlpha > 0 && photo.imageLowRes) {
             let img = imageCache.get(photo.imageLowRes);
             if (!img) {
                 img = new Image();
@@ -844,7 +929,7 @@ function drawPhotos() {
 
             if (img.complete && img.naturalWidth > 0) {
                 const prevAlpha = ctx.globalAlpha;
-                ctx.globalAlpha = fadeAlpha;
+                ctx.globalAlpha = fadeAlpha * animAlpha; // Combine both fade effects
                 ctx.drawImage(img, screenX, screenY, screenSize, screenSize);
                 ctx.globalAlpha = prevAlpha;
             }
