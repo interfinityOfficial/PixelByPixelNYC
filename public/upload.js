@@ -207,7 +207,7 @@ function selectPixel(x, y) {
     selectedPixelData = { x, y };
 }
 
-function uploadPhoto() {
+async function uploadPhoto() {
     document.body.classList.remove('pixel-selection-mode');
     document.body.classList.remove('show-confirm');
     document.body.classList.add('uploading');
@@ -215,27 +215,32 @@ function uploadPhoto() {
         window.exitPixelSelectionMode();
     }
 
-    new Compressor(croppedFile, {
-        quality: 0.9,
-        maxWidth: 2000,
-        success(result) {
-            uploadFile(result, selectedPixelData.x, selectedPixelData.y, (data) => {
-                fileInput.value = '';
-                if (data.success) {
-                    if (data.data.duplicate) {
-                        showAlert('THIS IMAGE ALREADY EXISTS<br />PLEASE UPLOAD A NEW IMAGE', "OK");
-                    } else if (window.refreshPhotos) {
-                        window.refreshPhotos();
-                    }
-                } else {
-                    showAlert('UPLOAD FAILED<br />PLEASE TRY AGAIN', "OK");
+    const options = {
+        maxSizeMB: 1, // Maximum size 1MB
+        maxWidthOrHeight: 2000,
+        useWebWorker: true,
+    };
+
+    try {
+        const compressedFile = await imageCompression(croppedFile, options);
+        // console.log('Original:', (croppedFile.size / 1024 / 1024).toFixed(2), 'MB');
+        // console.log('Compressed:', (compressedFile.size / 1024 / 1024).toFixed(2), 'MB');
+
+        uploadFile(compressedFile, selectedPixelData.x, selectedPixelData.y, (data) => {
+            fileInput.value = '';
+            if (data.success) {
+                if (data.data.duplicate) {
+                    showAlert('THIS IMAGE ALREADY EXISTS<br />PLEASE UPLOAD A NEW IMAGE', "OK");
+                } else if (window.refreshPhotos) {
+                    window.refreshPhotos();
                 }
-            });
-        },
-        error(err) {
-            showAlert('PHOTO COMPRESSION FAILED<br />PLEASE TRY AGAIN', "OK");
-        },
-    });
+            } else {
+                showAlert('UPLOAD FAILED<br />PLEASE TRY AGAIN', "OK");
+            }
+        });
+    } catch (error) {
+        showAlert('PHOTO COMPRESSION FAILED<br />PLEASE TRY AGAIN', "OK");
+    }
 }
 
 function uploadFile(file, x, y, callback) {
