@@ -18,7 +18,7 @@ body {
 }
 
 .pointer-cursor {
-  cursor: url("/assets/cursor-pointer.png"), pointer;
+  cursor: url("/assets/cursor-pointer-white.png"), pointer;
 }
 
 .dragging-cursor {
@@ -26,7 +26,11 @@ body {
 }
 
 .zoom-cursor {
-  cursor: url("/assets/cursor-pointer.png"), pointer;
+  cursor: url("/assets/cursor-pointer-white.png"), pointer;
+}
+
+.show-info-view {
+  cursor: url("/assets/cursor-default-dark.png"), auto;
 }
 
 #mapCanvas {

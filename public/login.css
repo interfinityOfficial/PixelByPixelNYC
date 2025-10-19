@@ -13,7 +13,7 @@ body {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  cursor: url("/assets/cursor-default.png"), auto;
+  cursor: url("/assets/cursor-default-dark.png"), auto;
 }
 
 main {
