@@ -604,6 +604,12 @@ canvas.addEventListener('click', e => {
             handlePixelSelection(mapX, mapY);
         }
     } else {
+        // Don't zoom into photo if this was the end of a drag
+        if (dragOccurred) {
+            dragOccurred = false; // Reset for next interaction
+            return;
+        }
+
         // Normal photo zoom behavior
         const mapX = Math.floor((cursorX - offsetX) / (PIXEL_SIZE * scale));
         const mapY = Math.floor((cursorY - offsetY) / (PIXEL_SIZE * scale));
