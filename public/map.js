@@ -806,7 +806,7 @@ function drawPhotos() {
         const screenSize = Math.ceil(PIXEL_SIZE * scale);
 
         // Always draw the base color block
-        ctx.fillStyle = clampHexToHSL(photo.color);
+        ctx.fillStyle = photo.color;
         ctx.fillRect(screenX, screenY, screenSize, screenSize);
 
         // Overlay the image with a fade between 4x and 5x
