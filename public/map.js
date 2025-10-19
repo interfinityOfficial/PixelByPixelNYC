@@ -212,7 +212,7 @@ ctx.webkitImageSmoothingEnabled = false;
 ctx.msImageSmoothingEnabled = false;
 
 const colorMap = {
-    w: "#282828", // water
+    w: "#1E1E1E", // water
     m: "#000000", // Manhattan
     x: "#000000", // Bronx
     b: "#000000", // Brooklyn + Queens
@@ -711,7 +711,7 @@ canvas.addEventListener('wheel', e => {
 function drawMap(mapData) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.fillStyle = '#282828';
+    ctx.fillStyle = '#1E1E1E';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     drawGrid();
@@ -780,7 +780,7 @@ function drawMap(mapData) {
 }
 
 function drawGrid() {
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
     ctx.lineWidth = 1;
     ctx.beginPath();
 
