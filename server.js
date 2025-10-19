@@ -17,6 +17,7 @@ const {
     verifyAuthenticationResponse,
 } = require("@simplewebauthn/server");
 
+require('dotenv').config();
 // Helper function to decode base64url to buffer
 function base64URLStringToBuffer(base64URLString) {
     // Convert from base64url to base64
@@ -54,8 +55,8 @@ app.use(
     })
 );
 
-const rpID = "localhost";
-const origin = `http://${rpID}:${PORT}`;
+const rpID = "pixelbypixel.nyc";
+const origin = `https://${rpID}`;
 
 let temporaryUsers = new Map();
 let loginChallenges = new Map();
@@ -91,6 +92,7 @@ function deduplicatePhotosByCoordinates(photos) {
 const s3 = new S3Client({
     region: 'auto',
     endpoint: process.env.R2_ENDPOINT,
+    forcePathStyle: true,
     credentials: {
         accessKeyId: process.env.R2_ACCESS_KEY_ID,
         secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
@@ -155,15 +157,15 @@ app.get('/login/', async (req, res) => {
     res.render('login.ejs');
 });
 
-app.get('/signup/', async (req, res) => {
-    if (req.session.userId) {
-        user = await prisma.user.findUnique({ where: { id: req.session.userId } });
-        if (user) {
-            return res.redirect('/dashboard/');
-        }
-    }
-    res.render('signup.ejs');
-});
+// app.get('/signup/', async (req, res) => {
+//     if (req.session.userId) {
+//         user = await prisma.user.findUnique({ where: { id: req.session.userId } });
+//         if (user) {
+//             return res.redirect('/dashboard/');
+//         }
+//     }
+//     res.render('signup.ejs');
+// });
 
 app.get('/dashboard/', async (req, res) => {
     if (!req.session.userId) {
@@ -324,78 +326,78 @@ function randomId() {
 }
 
 // Signup
-app.post("/signup-request/", async (req, res) => {
-    const { username } = req.body;
-    const existingUser = await prisma.user.findUnique({ where: { username } });
-    if (existingUser) {
-        return res.status(400).json({ error: "Username unavailable" });
-    }
+// app.post("/signup-request/", async (req, res) => {
+//     const { username } = req.body;
+//     const existingUser = await prisma.user.findUnique({ where: { username } });
+//     if (existingUser) {
+//         return res.status(400).json({ error: "Username unavailable" });
+//     }
 
-    const tempUser = { id: randomId(), username, credentials: [] };
-    temporaryUsers.set(tempUser.id, tempUser);
+//     const tempUser = { id: randomId(), username, credentials: [] };
+//     temporaryUsers.set(tempUser.id, tempUser);
 
-    const options = await generateRegistrationOptions({
-        rpName: "Pixel by Pixel NYC",
-        rpID,
-        userID: new TextEncoder().encode(tempUser.id),
-        userName: username,
-        timeout: 60000,
-        attestationType: "none",
-        authenticatorSelection: { residentKey: "preferred", userVerification: "preferred" },
-    });
+//     const options = await generateRegistrationOptions({
+//         rpName: "Pixel by Pixel NYC",
+//         rpID,
+//         userID: new TextEncoder().encode(tempUser.id),
+//         userName: username,
+//         timeout: 60000,
+//         attestationType: "none",
+//         authenticatorSelection: { residentKey: "preferred", userVerification: "preferred" },
+//     });
 
-    tempUser.currentChallenge = options.challenge;
-    res.json(options);
-});
+//     tempUser.currentChallenge = options.challenge;
+//     res.json(options);
+// });
 
-app.post("/signup-response/", async (req, res) => {
-    const { userId, attestationResponse } = req.body;
-    // Decode base64url userId back to original string
-    const originalUserId = new TextDecoder().decode(base64URLStringToBuffer(userId));
-    const user = temporaryUsers.get(originalUserId);
-    if (!user) {
-        return res.status(400).json({ error: "Temporary user not found" });
-    }
+// app.post("/signup-response/", async (req, res) => {
+//     const { userId, attestationResponse } = req.body;
+//     // Decode base64url userId back to original string
+//     const originalUserId = new TextDecoder().decode(base64URLStringToBuffer(userId));
+//     const user = temporaryUsers.get(originalUserId);
+//     if (!user) {
+//         return res.status(400).json({ error: "Temporary user not found" });
+//     }
 
-    try {
-        const verification = await verifyRegistrationResponse({
-            response: attestationResponse,
-            expectedChallenge: user.currentChallenge,
-            expectedOrigin: origin,
-            expectedRPID: rpID,
-        });
+//     try {
+//         const verification = await verifyRegistrationResponse({
+//             response: attestationResponse,
+//             expectedChallenge: user.currentChallenge,
+//             expectedOrigin: origin,
+//             expectedRPID: rpID,
+//         });
 
-        if (verification.verified) {
-            const dbUser = await prisma.user.create({
-                data: {
-                    username: user.username,
-                    isAdmin: true,
-                },
-            });
+//         if (verification.verified) {
+//             const dbUser = await prisma.user.create({
+//                 data: {
+//                     username: user.username,
+//                     isAdmin: true,
+//                 },
+//             });
 
-            const cred = verification.registrationInfo.credential;
-            await prisma.credential.create({
-                data: {
-                    userId: dbUser.id,
-                    credentialId: cred.id,
-                    publicKey: bufferToBase64URLString(Buffer.from(cred.publicKey)),
-                    counter: cred.counter,
-                    transports: JSON.stringify(cred.transports),
-                },
-            });
+//             const cred = verification.registrationInfo.credential;
+//             await prisma.credential.create({
+//                 data: {
+//                     userId: dbUser.id,
+//                     credentialId: cred.id,
+//                     publicKey: bufferToBase64URLString(Buffer.from(cred.publicKey)),
+//                     counter: cred.counter,
+//                     transports: JSON.stringify(cred.transports),
+//                 },
+//             });
 
-            temporaryUsers.delete(originalUserId);
+//             temporaryUsers.delete(originalUserId);
 
-            req.session.userId = dbUser.id;
-            req.session.username = dbUser.username;
-        }
+//             req.session.userId = dbUser.id;
+//             req.session.username = dbUser.username;
+//         }
 
-        res.json({ ok: verification.verified });
-    } catch (err) {
-        console.error(err);
-        res.status(400).json({ error: err.message });
-    }
-});
+//         res.json({ ok: verification.verified });
+//     } catch (err) {
+//         console.error(err);
+//         res.status(400).json({ error: err.message });
+//     }
+// });
 
 // Login
 app.post("/login-request/", async (req, res) => {

@@ -11,7 +11,6 @@ async function loginWithPasskey(username) {
     }
 
     try {
-        console.log('Received options from server:', opts);
         const attResp = await SimpleWebAuthnBrowser.startAuthentication({ optionsJSON: opts.options });
         await fetch("/login-response/", {
             method: "POST",

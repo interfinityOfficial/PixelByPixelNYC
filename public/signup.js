@@ -11,7 +11,6 @@ async function signupWithPasskey(username) {
         showError(opts.error);
         return;
     }
-    console.log('Received options from server:', opts);
     try {
         const attResp = await SimpleWebAuthnBrowser.startRegistration({ optionsJSON: opts });
         await fetch("/signup-response/", {
