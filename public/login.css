@@ -1,0 +1,173 @@
+@font-face {
+  font-family: "Tiny5";
+  src: url("/assets/Tiny5.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  cursor: url("/assets/cursor-default.png"), auto;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: calc(100% - max(2.8vw, 35px));
+  padding: calc(max(1.4vw, 17.5px));
+  padding-top: calc(max(1.4vw, 17.5px) - max(min(8vw, 36px), 24px) / 4);
+  max-width: 600px;
+  min-height: calc(100vh - max(2.8vw, 35px) + max(min(8vw, 36px), 24px) / 4);
+  min-height: calc(100dvh - max(2.8vw, 35px) + max(min(8vw, 36px), 24px) / 4);
+}
+
+.title,
+.title-placeholder,
+.subtitle {
+  position: fixed;
+  text-decoration: none;
+  cursor: url("/assets/cursor-pointer.png"), pointer;
+  top: calc(max(1.4vw, 17.5px) - max(min(8vw, 36px), 24px) / 4);
+  left: calc(max(1.4vw, 17.5px));
+  font-family: "Tiny5";
+  text-align: left;
+  font-size: max(min(8vw, 36px), 24px);
+  color: #fff;
+  -webkit-text-stroke: max(min(0.44vw, 2px), 1px) #000;
+  z-index: 20;
+  transition: top 0.3s ease-in-out, color 0.3s ease-in-out,
+    -webkit-text-stroke 0.3s ease-in-out;
+}
+
+.title-placeholder,
+.subtitle {
+  top: 0%;
+  left: 0%;
+  position: relative;
+  visibility: hidden;
+}
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  /* gap: calc(max(1.4vw, 17.5px)); */
+}
+
+.subtitle {
+  visibility: visible;
+  color: #000;
+  padding-top: calc(max(1.4vw, 17.5px));
+  padding-bottom: calc(max(1.4vw, 17.5px));
+  -webkit-text-stroke: 0px transparent;
+}
+
+.username-container {
+  width: 100%;
+  max-width: 400px;
+  background-color: transparent;
+  color: #000;
+}
+
+.username-input {
+  width: calc(100% - 26px);
+  max-width: 400px;
+  padding: 10px;
+  margin-bottom: calc(max(1.4vw, 17.5px));
+  background-color: transparent;
+  color: #000;
+  border: 3px solid #000;
+  outline: none;
+  font-family: "Tiny5";
+  text-align: center;
+  font-size: max(min(4vw, 20px), 16px);
+}
+
+input::placeholder {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.show-error .username-input {
+  border-color: red;
+}
+
+.error-text-container {
+  position: relative;
+  pointer-events: none;
+  width: 100%;
+  height: 0%;
+  max-width: 400px;
+  display: flex;
+  padding-bottom: 0%;
+  transition: padding-bottom 0.3s ease-in-out;
+}
+
+.show-error .error-text-container {
+  padding-bottom: calc(max(1.4vw, 17.5px) + var(--error-text-height));
+}
+
+.error-text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  text-transform: uppercase;
+  opacity: 0;
+  width: 100%;
+  color: red;
+  font-family: "Tiny5";
+  font-size: max(min(4vw, 20px), 16px);
+  text-align: left;
+
+  transition: opacity 0.3s ease-in-out;
+}
+
+.show-error .error-text {
+  opacity: 1;
+}
+
+.passkey-button {
+  width: 100%;
+  max-width: 400px;
+  padding: 13px;
+  margin-bottom: calc(max(1.4vw, 17.5px));
+  background-color: transparent;
+  color: #fff;
+  background-color: #000;
+  border: none;
+  font-family: "Tiny5";
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: max(min(4vw, 20px), 16px);
+  cursor: url("/assets/cursor-pointer.png"), pointer;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.passkey-icon {
+  height: 20px;
+  fill: #fff;
+  margin-right: 10px;
+}
+
+.passkey-button:hover {
+  opacity: 0.4;
+}
+
+.copyright {
+  margin-top: auto;
+  width: 100%;
+  text-align: left;
+  color: #000;
+  margin-top: calc(max(0.7vw, 8.75px));
+  font-size: max(min(4vw, 20px), 16px);
+  font-family: "Tiny5";
+}

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/login.css" />
+    <script src="/lib/simplewebauthn.umd.min.js"></script>
+    <title>Pixel by Pixel NYC</title>
+  </head>
+  <body>
+    <a href="/" class="title">PIXEL BY PIXEL<br />NYC</a>
+    <main>
+      <div class="title-placeholder">PIXEL BY PIXEL<br />NYC</div>
+      <div class="login-container">
+        <div class="subtitle">ADMIN LOGIN</div>
+        <div class="error-text-container">
+          <div class="error-text" id="error-text">AN ERROR OCCURRED</div>
+        </div>
+        <!-- <div class="username-container">
+          <input
+            type="text"
+            placeholder="ENTER YOUR USERNAME"
+            class="username-input"
+            id="username-input"
+            maxlength="20"
+          />
+        </div> -->
+        <button class="passkey-button" id="login-button">
+          <svg
+            class="passkey-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 50 70"
+          >
+            <g id="Layer_1-2" data-name="Layer_1">
+              <path
+                d="M40,0H0v30h20v40h0s20,0,20,0v-20h-10v-20h20V0h-10ZM40,20H10v-10h30v10Z"
+              />
+            </g>
+          </svg>
+          CONTINUE WITH PASSKEY
+        </button>
+        <div class="copyright">
+          <span>Copyright © 2025 interfinity Limited.</span>
+        </div>
+      </div>
+    </main>
+
+    <script src="/login.js"></script>
+  </body>
+</html>

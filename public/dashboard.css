@@ -1,0 +1,279 @@
+@font-face {
+  font-family: "Tiny5";
+  src: url("/assets/Tiny5.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  cursor: url("/assets/cursor-default.png"), auto;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: calc(100% - max(2.8vw, 35px));
+  max-width: 600px;
+  padding: calc(max(1.4vw, 17.5px));
+  padding-top: calc(max(1.4vw, 17.5px) - max(min(8vw, 36px), 24px) / 4);
+  min-height: calc(100vh - max(2.8vw, 35px) + max(min(8vw, 36px), 24px) / 4);
+  min-height: calc(100dvh - max(2.8vw, 35px) + max(min(8vw, 36px), 24px) / 4);
+}
+
+main::after {
+  content: "";
+  position: fixed;
+  pointer-events: none;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+  z-index: 24;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.show-alert main::after {
+  opacity: 1;
+}
+
+.title,
+.title-placeholder,
+.subtitle {
+  position: fixed;
+  text-decoration: none;
+  cursor: url("/assets/cursor-pointer.png"), pointer;
+  top: calc(max(1.4vw, 17.5px) - max(min(8vw, 36px), 24px) / 4);
+  left: calc(max(1.4vw, 17.5px));
+  font-family: "Tiny5";
+  text-align: left;
+  font-size: max(min(8vw, 36px), 24px);
+  color: #fff;
+  -webkit-text-stroke: max(min(0.44vw, 2px), 1px) #000;
+  z-index: 20;
+  transition: top 0.3s ease-in-out, color 0.3s ease-in-out,
+    -webkit-text-stroke 0.3s ease-in-out;
+}
+
+.title-placeholder,
+.subtitle {
+  top: 0%;
+  left: 0%;
+  position: relative;
+  visibility: hidden;
+}
+
+.logout-button {
+  position: absolute;
+  top: max(1vw, 12.5px);
+  right: max(1vw, 12.5px);
+  width: max(4vw, 50px);
+  height: max(4vw, 50px);
+  z-index: 3;
+  cursor: url("/assets/cursor-pointer.png"), pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  transition: top 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+.logout-button-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-40%, -50%);
+  fill: #000;
+  width: 70%;
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.logout-button:hover {
+  opacity: 0.4;
+}
+
+.subtitle {
+  visibility: visible;
+  color: #000;
+  padding-top: calc(max(1.4vw, 17.5px));
+  padding-bottom: calc(max(1.4vw, 17.5px));
+  -webkit-text-stroke: 0px transparent;
+}
+
+.no-photos {
+  width: 100%;
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.075);
+  font-family: "Tiny5";
+  font-size: 24px;
+  color: rgba(0, 0, 0, 0.4);
+  text-align: center;
+}
+
+.photos {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: calc(max(1.4vw, 17.5px));
+}
+
+.photo {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  border: 3px solid #000;
+}
+
+.photo-info {
+  width: calc(100% - max(2.8vw, 35px));
+  padding: calc(max(1.4vw, 17.5px));
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.photo-link {
+  display: flex;
+  cursor: url("/assets/cursor-pointer.png"), pointer;
+}
+
+.photo-image {
+  width: 80px;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+}
+
+.photo-coords {
+  position: relative;
+  cursor: url("/assets/cursor-pointer.png"), text;
+  outline: none;
+  white-space: nowrap;
+  font-family: "Tiny5";
+  font-size: 24px;
+  margin-bottom: 3px;
+  color: #000;
+  text-align: center;
+}
+
+.photo-coords::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: rgba(0, 0, 0, 0.2);
+  z-index: 1;
+
+  transition: background-color 0.3s ease-in-out;
+}
+
+.photo-coords:focus::after {
+  background-color: rgba(0, 0, 0, 1);
+}
+
+.photo-actions {
+  display: flex;
+  flex-direction: row;
+}
+
+.photo-action-button {
+  display: flex;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  padding: 0;
+  justify-content: center;
+  align-items: center;
+  cursor: url("/assets/cursor-pointer.png"), pointer;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.photo-action-button:hover {
+  opacity: 0.4;
+}
+
+.delete-icon {
+  width: 20px;
+  height: 20px;
+  fill: #000;
+  transition: fill 0.3s ease-in-out;
+}
+
+.alert-box {
+  position: fixed;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(100% - 40px);
+  max-width: 400px;
+  background-color: #fff;
+  z-index: 25;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+  opacity: 0;
+
+  transition: opacity 0.3s ease-in-out, top 0.3s ease-in-out;
+}
+
+.show-alert .alert-box {
+  pointer-events: auto;
+  top: 50%;
+  opacity: 1;
+}
+
+.alert-text {
+  font-family: "Tiny5";
+  width: calc(100% - 40px);
+  padding: 20px;
+  padding-bottom: 0%;
+  font-size: 24px;
+  color: #000;
+  text-align: center;
+}
+
+.alert-buttons {
+  width: calc(100% - 40px);
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.alert-button {
+  width: 100%;
+  padding: 10px;
+  background-color: transparent;
+  color: #000;
+  border: 3px solid #000;
+  font-family: "Tiny5";
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+  cursor: url("/assets/cursor-pointer.png"), pointer;
+  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+.alert-button:hover {
+  cursor: url("/assets/cursor-pointer-white.png"), pointer;
+  background-color: #000;
+  color: #fff;
+}

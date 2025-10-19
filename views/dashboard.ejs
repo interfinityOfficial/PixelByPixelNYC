@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/dashboard.css" />
+    <script src="/lib/simplewebauthn.umd.min.js"></script>
+    <title>Pixel by Pixel NYC</title>
+  </head>
+  <body>
+    <a href="/" class="title">PIXEL BY PIXEL<br />NYC</a>
+    <main>
+      <div class="title-placeholder">PIXEL BY PIXEL<br />NYC</div>
+      <div class="logout-button" id="logout-button">
+        <svg
+          class="logout-button-icon"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 70 70"
+        >
+          <g id="Layer_1-2" data-name="Layer_1">
+            <g>
+              <polygon
+                points="60 30 60 20 50 20 50 30 20 30 20 40 50 40 50 50 60 50 60 40 70 40 70 30 60 30"
+              />
+              <rect x="40" y="10" width="10" height="10" />
+              <rect x="40" y="50" width="10" height="10" />
+              <rect x="10" y="60" width="20" height="10" />
+              <polygon
+                points="29.79 10 29.79 0 9.79 0 9.79 10 0 10 0 60 10 60 10 10 29.79 10"
+              />
+            </g>
+          </g>
+        </svg>
+      </div>
+      <div class="subtitle">DASHBOARD</div>
+      <div class="photos" id="photos">
+        <% if (photos.length === 0) { %>
+        <div class="no-photos">NO PHOTOS YET</div>
+        <% } else { %> <% photos.forEach(photo => { %>
+        <div class="photo" id="photo-<%= photo.id %>">
+          <a
+            href="<%= photo.imageHighRes %>"
+            target="_blank"
+            class="photo-link"
+          >
+            <img
+              src="<%= photo.imageLowRes %>"
+              alt="Photo"
+              class="photo-image"
+            />
+          </a>
+          <div class="photo-info">
+            <div
+              class="photo-coords"
+              contenteditable="true"
+              data-photo-coords="<%= photo.imageX %>, <%= photo.imageY %>"
+              data-photo-id="<%= photo.id %>"
+            >
+              <%= photo.imageX %>, <%= photo.imageY %>
+            </div>
+            <div class="photo-actions">
+              <button
+                class="photo-action-button"
+                data-photo-id="<%= photo.id %>"
+              >
+                <svg
+                  class="delete-icon"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 50 50"
+                >
+                  <g id="Layer_1-2" data-name="Layer_1">
+                    <g>
+                      <rect x="40" width="10" height="10" />
+                      <rect x="30" y="10" width="10" height="10" />
+                      <rect x="20" y="20" width="10" height="10" />
+                      <rect x="10" y="10" width="10" height="10" />
+                      <rect width="10" height="10" />
+                      <rect y="40" width="10" height="10" />
+                      <rect x="10" y="30" width="10" height="10" />
+                      <rect x="40" y="40" width="10" height="10" />
+                      <rect x="30" y="30" width="10" height="10" />
+                    </g>
+                  </g>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <% }); %> <% } %>
+      </div>
+    </main>
+    <div class="alert-box" id="alert-box">
+      <div class="alert-text" id="alert-text">
+        UPLOADING FAILED<br />PLEASE TRY AGAIN
+      </div>
+      <div class="alert-buttons">
+        <button class="alert-button" id="alert-dismiss">Dismiss</button>
+        <button class="alert-button" id="alert-action">Confirm</button>
+      </div>
+    </div>
+
+    <script src="/dashboard.js"></script>
+  </body>
+</html>

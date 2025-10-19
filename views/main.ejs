@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Preload fonts for better performance -->
+    <link
+      rel="preload"
+      href="/assets/Tiny5.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
+    <script src="/lib/cropper.min.js"></script>
+    <script src="/lib/compressor.min.js"></script>
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/cropper.css" />
+    <title>Pixel by Pixel NYC</title>
+  </head>
+  <body>
+    <canvas id="mapCanvas" width="450" height="540"></canvas>
+    <div class="title">PIXEL BY PIXEL<br />NYC</div>
+    <div class="photo-view">
+      <img class="photo-image" id="photo-image" src="" alt="Photo" />
+    </div>
+    <div class="pixel-close-button" id="pixel-close-button">
+      <svg
+        class="pixel-close-button-icon"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 50 50"
+      >
+        <g id="Layer_1-2" data-name="Layer_1">
+          <g>
+            <rect x="40" width="10" height="10" />
+            <rect x="30" y="10" width="10" height="10" />
+            <rect x="20" y="20" width="10" height="10" />
+            <rect x="10" y="10" width="10" height="10" />
+            <rect width="10" height="10" />
+            <rect y="40" width="10" height="10" />
+            <rect x="10" y="30" width="10" height="10" />
+            <rect x="40" y="40" width="10" height="10" />
+            <rect x="30" y="30" width="10" height="10" />
+          </g>
+        </g>
+      </svg>
+    </div>
+    <div class="info-button" id="info-button">
+      <svg
+        class="info-button-icon"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 50 70"
+      >
+        <g id="Layer_1-2" data-name="Layer_1">
+          <g>
+            <polygon
+              points="30 60 30 30 30 20 20 20 10 20 10 30 20 30 20 60 0 60 0 70 20 70 30 70 50 70 50 60 30 60"
+            />
+            <rect x="20" width="10" height="10" />
+          </g>
+        </g>
+      </svg>
+    </div>
+    <div class="upload-button" id="upload-button">
+      <svg
+        class="upload-button-icon"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 70 80"
+      >
+        <g id="Layer_1-2" data-name="Layer_1">
+          <g>
+            <rect x="10" y="70" width="50" height="10" />
+            <rect y="50" width="10" height="20" />
+            <rect x="60" y="50" width="10" height="20" />
+            <polygon
+              points="30 60 40 60 40 20 50 20 50 10 40 10 40 0 30 0 30 10 20 10 20 20 30 20 30 60"
+            />
+            <rect x="10" y="20" width="10" height="10" />
+            <rect x="50" y="20" width="10" height="10" />
+          </g>
+        </g>
+      </svg>
+
+      <svg
+        class="upload-button-confirm-icon"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 70 50"
+      >
+        <g id="Layer_1-2" data-name="Layer_1">
+          <g>
+            <rect x="40" y="20" width="10" height="10" />
+            <rect x="50" y="10" width="10" height="10" />
+            <rect x="30" y="30" width="10" height="10" />
+            <rect x="20" y="40" width="10" height="10" />
+            <rect x="10" y="30" width="10" height="10" />
+            <rect y="20" width="10" height="10" />
+            <rect x="60" width="10" height="10" />
+          </g>
+        </g>
+      </svg>
+    </div>
+    <div class="drop-zone" id="drop-zone">
+      <div class="drop-zone-text">
+        <span class="drop-zone-text-upload placeholder"
+          >DROP PHOTO TO UPLOAD</span
+        >
+        <span class="drop-zone-text-upload" id="drop-zone-text-upload"
+          >DROP PHOTO TO UPLOAD</span
+        >
+        <span class="drop-zone-text-crop">CROP YOUR PHOTO</span>
+      </div>
+      <div class="image-crop-view">
+        <div class="cropper-container">
+          <img id="cropper-image" src="" alt="Image to crop" />
+        </div>
+        <div class="cropper-buttons">
+          <button class="cropper-button" id="crop-cancel">CANCEL</button>
+          <button class="cropper-button" id="crop-confirm">CONFIRM</button>
+        </div>
+      </div>
+      <input
+        type="file"
+        id="file-upload-input"
+        accept="image/png, image/jpeg"
+        style="display: none"
+      />
+    </div>
+    <div class="pixel-selection-mode-text">SELECT A PIXEL FOR YOUR PHOTO</div>
+    <div class="upload-progress">
+      <div class="upload-pixels">
+        <div class="pixel-1"></div>
+        <div class="pixel-2"></div>
+        <div class="pixel-3"></div>
+        <div class="pixel-4"></div>
+        <div class="pixel-5"></div>
+      </div>
+      <!-- <div class="upload-progress-text">UPLOADING PHOTO</div> -->
+    </div>
+    <div class="info-view">
+      <div class="close-button" id="close-button">
+        <svg
+          class="close-button-icon"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 50 50"
+        >
+          <g id="Layer_1-2" data-name="Layer_1">
+            <g>
+              <rect x="40" width="10" height="10" />
+              <rect x="30" y="10" width="10" height="10" />
+              <rect x="20" y="20" width="10" height="10" />
+              <rect x="10" y="10" width="10" height="10" />
+              <rect width="10" height="10" />
+              <rect y="40" width="10" height="10" />
+              <rect x="10" y="30" width="10" height="10" />
+              <rect x="40" y="40" width="10" height="10" />
+              <rect x="30" y="30" width="10" height="10" />
+            </g>
+          </g>
+        </svg>
+      </div>
+      <div class="info-title-placeholder">PIXEL BY PIXEL<br />NYC</div>
+      <div class="info-text">
+        New York City is built from fragments — not just glass and steel, but
+        moments too small to hold.<br /><br />Each photo becomes a pixel in a
+        larger rhythm. Together, they reveal a city that is both vast and
+        intimate.<br /><br />Here, each pixel is a heartbeat and each color is
+        trace of someone's day.<br /><br />Pixel by pixel, the city reassembles
+        itself — not as a map of streets, but as a living memory shaped by the
+        people who look, pause, and capture.<br /><br />Every upload is
+        anonymous.<br />No personal information is collected.<br /><br />We
+        reserve the right to remove any photos that are deemed inappropriate or
+        irrelevant.
+      </div>
+      <div class="bottom">
+        <% if (isAdmin) { %>
+        <a href="/dashboard/" class="login-link">ADMIN DASHBOARD</a>
+        <% } else { %>
+        <a href="/login/" class="login-link">ADMIN LOGIN</a>
+        <% } %>
+        <div class="copyright">
+          <span>Copyright © 2025 interfinity Limited.</span>
+        </div>
+      </div>
+    </div>
+    <div class="alert-box" id="alert-box">
+      <div class="alert-text" id="alert-text">
+        UPLOADING FAILED<br />PLEASE TRY AGAIN
+      </div>
+      <div class="alert-buttons">
+        <button class="alert-button" id="alert-dismiss">Dismiss</button>
+        <button class="alert-button" id="alert-action">Confirm</button>
+      </div>
+    </div>
+
+    <script>
+      window.__PHOTOS__ = <%- JSON.stringify(photos) %>;
+    </script>
+    <script src="/map.js"></script>
+    <script src="/upload.js"></script>
+  </body>
+</html>

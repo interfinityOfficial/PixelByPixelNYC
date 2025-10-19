@@ -1,0 +1,26 @@
+{
+  "name": "pixelbypixel",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.910.0",
+    "@prisma/client": "^6.17.1",
+    "@simplewebauthn/server": "^13.2.2",
+    "cropperjs": "^2.0.1",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "express-session": "^1.18.2",
+    "multer": "^2.0.2",
+    "node-vibrant": "^4.0.3",
+    "pg": "^8.16.3",
+    "prisma": "^6.17.1",
+    "sharp": "^0.34.4"
+  }
+}
