@@ -213,9 +213,9 @@ ctx.msImageSmoothingEnabled = false;
 
 const colorMap = {
     w: "#1E1E1E", // water
-    m: "#000000", // Manhattan
-    x: "#000000", // Bronx
-    b: "#000000", // Brooklyn + Queens
+    m: "#0A0A0A", // Manhattan
+    x: "#0A0A0A", // Bronx
+    b: "#0A0A0A", // Brooklyn + Queens
 };
 
 function getCanvasRect() {
@@ -728,7 +728,7 @@ function drawMap(mapData) {
     for (let y = startY; y < endY; y++) {
         for (let x = startX; x < endX; x++) {
             const code = mapData[y][x];
-            const color = colorMap[code] || "#000000";
+            const color = colorMap[code] || "#0A0A0A";
 
             if (code != "w") {
                 ctx.fillStyle = color;
