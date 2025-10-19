@@ -54,6 +54,30 @@ let dragOccurred = false;
 let touchDragOccurred = false;
 const DRAG_THRESHOLD = 5; // Minimum pixels to move before considering it a drag
 
+function clampHexToHSL(hex, satRange = [30, 70], lightRange = [40, 70]) {
+    hex = hex.replace(/^#/, '');
+    const num = parseInt(hex, 16);
+    let r = (num >> 16) & 255, g = (num >> 8) & 255, b = num & 255;
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h, s, l = (max + min) / 2;
+    if (max === min) { h = s = 0; }
+    else {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: h = (b - r) / d + 2; break;
+            case b: h = (r - g) / d + 4; break;
+        }
+        h *= 60;
+    }
+    s = Math.min(Math.max(s * 100, satRange[0]), satRange[1]);
+    l = Math.min(Math.max(l * 100, lightRange[0]), lightRange[1]);
+    return `hsl(${Math.round(h)}, ${Math.round(s)}%, ${Math.round(l)}%)`;
+}
+
+
 // Animate offset changes without changing scale
 function animateToOffsets(targetOffsetX, targetOffsetY, duration = 300) {
     if (animationId) {
@@ -780,7 +804,7 @@ function drawPhotos() {
         const screenSize = Math.ceil(PIXEL_SIZE * scale);
 
         // Always draw the base color block
-        ctx.fillStyle = photo.color;
+        ctx.fillStyle = clampHexToHSL(photo.color);
         ctx.fillRect(screenX, screenY, screenSize, screenSize);
 
         // Overlay the image with a fade between 4x and 5x
