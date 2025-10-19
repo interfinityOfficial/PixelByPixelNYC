@@ -54,13 +54,16 @@ let dragOccurred = false;
 let touchDragOccurred = false;
 const DRAG_THRESHOLD = 5; // Minimum pixels to move before considering it a drag
 
-function clampHexToHSL(hex, satRange = [40, 80], lightRange = [50, 80]) {
+function clampHexToHSL(hex, satRange = [30, 70], lightRange = [40, 70]) {
     hex = hex.replace(/^#/, '');
     const num = parseInt(hex, 16);
     let r = (num >> 16) & 255, g = (num >> 8) & 255, b = num & 255;
     r /= 255; g /= 255; b /= 255;
-    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
     let h, s, l = (max + min) / 2;
+
     if (max === min) { h = s = 0; }
     else {
         const d = max - min;
@@ -72,13 +75,26 @@ function clampHexToHSL(hex, satRange = [40, 80], lightRange = [50, 80]) {
         }
         h *= 60;
     }
-    s = Math.min(Math.max(s * 100, satRange[0]), satRange[1]);
-    l = Math.min(Math.max(l * 100, lightRange[0]), lightRange[1]);
-    console.log(hex);
-    console.log(h, s, l);
+
+    // Convert to percentage
+    s *= 100;
+    l *= 100;
+
+    // Soft compression (brings extremes closer to the middle)
+    const sMid = (satRange[0] + satRange[1]) / 2;
+    const lMid = (lightRange[0] + lightRange[1]) / 2;
+    const sFactor = 0.7; // smaller = stronger compression
+    const lFactor = 0.7;
+
+    s = sMid + (s - sMid) * sFactor;
+    l = lMid + (l - lMid) * lFactor;
+
+    // Hard clamp to ensure final bounds
+    s = Math.min(Math.max(s, satRange[0]), satRange[1]);
+    l = Math.min(Math.max(l, lightRange[0]), lightRange[1]);
+
     return `hsl(${Math.round(h)}, ${Math.round(s)}%, ${Math.round(l)}%)`;
 }
-
 
 // Animate offset changes without changing scale
 function animateToOffsets(targetOffsetX, targetOffsetY, duration = 300) {
