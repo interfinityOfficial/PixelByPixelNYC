@@ -54,7 +54,7 @@ let dragOccurred = false;
 let touchDragOccurred = false;
 const DRAG_THRESHOLD = 5; // Minimum pixels to move before considering it a drag
 
-function clampHexToHSL(hex, satRange = [30, 70], lightRange = [40, 70]) {
+function clampHexToHSL(hex, satRange = [40, 70], lightRange = [50, 80]) {
     hex = hex.replace(/^#/, '');
     const num = parseInt(hex, 16);
     let r = (num >> 16) & 255, g = (num >> 8) & 255, b = num & 255;
