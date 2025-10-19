@@ -54,7 +54,7 @@ let dragOccurred = false;
 let touchDragOccurred = false;
 const DRAG_THRESHOLD = 5; // Minimum pixels to move before considering it a drag
 
-function clampHexToHSL(hex, satRange = [0, 80], lightRange = [50, 80]) {
+function clampHexToHSL(hex, satRange = [40, 80], lightRange = [50, 80]) {
     hex = hex.replace(/^#/, '');
     const num = parseInt(hex, 16);
     let r = (num >> 16) & 255, g = (num >> 8) & 255, b = num & 255;
@@ -64,7 +64,7 @@ function clampHexToHSL(hex, satRange = [0, 80], lightRange = [50, 80]) {
     const min = Math.min(r, g, b);
     let h, s, l = (max + min) / 2;
 
-    if (max === min) { h = s = 0; }
+    if (max === min) { h = 0; s = 0; }
     else {
         const d = max - min;
         s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
@@ -76,25 +76,29 @@ function clampHexToHSL(hex, satRange = [0, 80], lightRange = [50, 80]) {
         h *= 60;
     }
 
-    // Convert to percentage
     s *= 100;
     l *= 100;
 
-    // Soft compression (brings extremes closer to the middle)
-    const sMid = (satRange[0] + satRange[1]) / 2;
-    const lMid = (lightRange[0] + lightRange[1]) / 2;
-    const sFactor = 0.7; // smaller = stronger compression
-    const lFactor = 0.7;
+    // Detect grays / near-grays
+    if (s < 5) {
+        s = 0; // keep completely neutral
+        l = Math.min(Math.max(l, 45), 65); // normalize brightness
+    } else {
+        // Soft compression for colorful pixels
+        const sMid = (satRange[0] + satRange[1]) / 2;
+        const lMid = (lightRange[0] + lightRange[1]) / 2;
+        const sFactor = 0.7, lFactor = 0.7;
 
-    s = sMid + (s - sMid) * sFactor;
-    l = lMid + (l - lMid) * lFactor;
+        s = sMid + (s - sMid) * sFactor;
+        l = lMid + (l - lMid) * lFactor;
 
-    // Hard clamp to ensure final bounds
-    s = Math.min(Math.max(s, satRange[0]), satRange[1]);
-    l = Math.min(Math.max(l, lightRange[0]), lightRange[1]);
+        s = Math.min(Math.max(s, satRange[0]), satRange[1]);
+        l = Math.min(Math.max(l, lightRange[0]), lightRange[1]);
+    }
 
     return `hsl(${Math.round(h)}, ${Math.round(s)}%, ${Math.round(l)}%)`;
 }
+
 
 // Animate offset changes without changing scale
 function animateToOffsets(targetOffsetX, targetOffsetY, duration = 300) {
@@ -822,7 +826,7 @@ function drawPhotos() {
         const screenSize = Math.ceil(PIXEL_SIZE * scale);
 
         // Always draw the base color block
-        ctx.fillStyle = photo.color;
+        ctx.fillStyle = clampHexToHSL(photo.color);
         ctx.fillRect(screenX, screenY, screenSize, screenSize);
 
         // Overlay the image with a fade between 4x and 5x
