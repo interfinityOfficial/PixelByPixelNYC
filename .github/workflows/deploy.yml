@@ -1,0 +1,29 @@
+name: Deploy Node.js App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Deploy to server via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: 22
+          script: |
+            cd /opt/projects/pixelbypixel_nyc
+            git reset --hard
+            git clean -fd
+            git pull origin main || git pull git@github.com:interfinityOfficial/pixelbypixelnyc.git pixelbypixel_nyc
+            npm install --production
+            pm2 reload pixelbypixel_nyc || pm2 start ecosystem.config.js --env production
