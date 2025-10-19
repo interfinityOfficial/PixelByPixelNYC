@@ -130,8 +130,8 @@ function handleFiles(file) {
         return;
     }
 
-    if (file.size > 80 * 1024 * 1024) { // 80MB limit
-        showAlert('FILE TOO LARGE<br />MAX SIZE IS 80MB', "OK");
+    if (file.size > 50 * 1024 * 1024) { // 50MB limit
+        showAlert('FILE TOO LARGE<br />MAX SIZE IS 50MB', "OK");
         document.body.classList.remove('highlight')
         return;
     }
