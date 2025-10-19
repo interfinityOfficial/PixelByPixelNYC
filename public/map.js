@@ -54,7 +54,7 @@ let dragOccurred = false;
 let touchDragOccurred = false;
 const DRAG_THRESHOLD = 5; // Minimum pixels to move before considering it a drag
 
-function clampHexToHSL(hex, satRange = [30, 50], lightRange = [40, 50]) {
+function clampHexToHSL(hex, satRange = [30, 50], lightRange = [60, 90]) {
     hex = hex.replace(/^#/, '');
     const num = parseInt(hex, 16);
     let r = (num >> 16) & 255, g = (num >> 8) & 255, b = num & 255;
@@ -74,6 +74,8 @@ function clampHexToHSL(hex, satRange = [30, 50], lightRange = [40, 50]) {
     }
     s = Math.min(Math.max(s * 100, satRange[0]), satRange[1]);
     l = Math.min(Math.max(l * 100, lightRange[0]), lightRange[1]);
+    console.log(hex);
+    console.log(h, s, l);
     return `hsl(${Math.round(h)}, ${Math.round(s)}%, ${Math.round(l)}%)`;
 }
 
