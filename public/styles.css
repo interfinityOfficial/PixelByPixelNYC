@@ -126,6 +126,7 @@ body {
 }
 
 .close-button {
+  cursor: url("/assets/cursor-pointer.png"), pointer;
   position: absolute;
 }
 
