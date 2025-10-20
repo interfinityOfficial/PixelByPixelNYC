@@ -943,8 +943,8 @@ function drawPhotos() {
 }
 
 function drawBoroughLabels() {
-    const baseFontSize = 40;
-    const maxFontSize = 120;
+    const baseFontSize = 20;
+    const maxFontSize = 60;
     const fontSize = Math.max(baseFontSize, Math.min(maxFontSize, baseFontSize * scale * 0.5));
 
     ctx.font = `400 ${fontSize}px Tiny5, -apple-system, BlinkMacSystemFont, sans-serif`;
