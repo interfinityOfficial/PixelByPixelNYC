@@ -5,10 +5,7 @@ const sharp = require("sharp");
 const path = require("path");
 const { S3Client, PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
 const { Vibrant } = require('node-vibrant/node');
-const app = express();
-const PORT = process.env.PORT || 3003;
 const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
 const { createHash } = require('crypto');
 const {
     generateRegistrationOptions,
@@ -18,6 +15,11 @@ const {
 } = require("@simplewebauthn/server");
 
 require('dotenv').config();
+
+const app = express();
+const PORT = process.env.PORT || 3003;
+const prisma = new PrismaClient();
+
 // Helper function to decode base64url to buffer
 function base64URLStringToBuffer(base64URLString) {
     // Convert from base64url to base64
