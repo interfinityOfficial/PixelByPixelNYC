@@ -583,12 +583,6 @@ body {
   position: absolute;
   top: 40%;
   left: 0%;
-
-  transition: top 0.3s ease-in-out, left 0.3s ease-in-out,
-    opacity 0.3s ease-in-out;
-}
-
-.uploading .pixel-1 {
   animation: pixel-1-animation 5s ease-in-out infinite 1.25s;
 }
 
@@ -631,12 +625,6 @@ body {
   position: absolute;
   top: 20%;
   left: 20%;
-
-  transition: top 0.3s ease-in-out, left 0.3s ease-in-out,
-    opacity 0.3s ease-in-out;
-}
-
-.uploading .pixel-2 {
   animation: pixel-2-animation 5s ease-in-out infinite 1.25s;
 }
 
@@ -679,12 +667,6 @@ body {
   position: absolute;
   top: 20%;
   left: 60%;
-
-  transition: top 0.3s ease-in-out, left 0.3s ease-in-out,
-    opacity 0.3s ease-in-out;
-}
-
-.uploading .pixel-3 {
   animation: pixel-3-animation 5s ease-in-out infinite 1.25s;
 }
 
@@ -727,12 +709,6 @@ body {
   position: absolute;
   top: 40%;
   left: 80%;
-
-  transition: top 0.3s ease-in-out, left 0.3s ease-in-out,
-    opacity 0.3s ease-in-out;
-}
-
-.uploading .pixel-4 {
   animation: pixel-4-animation 5s ease-in-out infinite 1.25s;
 }
 
@@ -776,12 +752,6 @@ body {
   top: 0%;
   left: 40%;
   height: 120%;
-
-  transition: top 0.3s ease-in-out, height 0.3s ease-in-out,
-    opacity 0.3s ease-in-out;
-}
-
-.uploading .pixel-5 {
   animation: pixel-5-animation 5s ease-in-out infinite 1.25s;
 }
 
