@@ -709,6 +709,11 @@ canvas.addEventListener('click', e => {
     e.preventDefault();
     updateCursorPosition(e.clientX, e.clientY);
 
+    const link = document.createElement('a');
+    link.download = 'map.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+
     // Don't select pixel if this was the end of a drag
     if (dragOccurred) {
         dragOccurred = false; // Reset for next interaction
