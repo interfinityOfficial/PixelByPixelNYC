@@ -18,6 +18,7 @@ body {
 
 .show-alert {
   overflow: hidden;
+  overscroll-behavior: none;
 }
 
 main {
