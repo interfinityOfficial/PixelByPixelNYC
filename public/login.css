@@ -138,6 +138,7 @@ input::placeholder {
   width: 100%;
   max-width: 400px;
   padding: 13px;
+  padding-left: 16px;
   margin-bottom: calc(max(1.4vw, 17.5px));
   background-color: transparent;
   color: #fff;
@@ -145,8 +146,9 @@ input::placeholder {
   border: none;
   font-family: "Tiny5";
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
+  gap: 10px;
   font-size: max(min(4vw, 20px), 16px);
   cursor: url("/assets/cursor-pointer.png"), pointer;
   transition: opacity 0.3s ease-in-out;
@@ -155,7 +157,6 @@ input::placeholder {
 .passkey-icon {
   height: 20px;
   fill: #fff;
-  margin-right: 10px;
 }
 
 .passkey-button:hover {
