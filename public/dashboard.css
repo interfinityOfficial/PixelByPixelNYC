@@ -16,6 +16,10 @@ body {
   cursor: url("/assets/cursor-default-dark.png"), auto;
 }
 
+.show-alert {
+  overflow: hidden;
+}
+
 main {
   display: flex;
   flex-direction: column;
