@@ -848,7 +848,7 @@ function drawMap(mapData) {
             ctx.strokeRect(screenX + 1, screenY + 1, screenSize - 2, screenSize - 2);
 
             // Draw semi-transparent overlay
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
             ctx.fillRect(screenX, screenY, screenSize, screenSize);
         }
     }
@@ -857,7 +857,7 @@ function drawMap(mapData) {
 }
 
 function drawGrid() {
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
     ctx.lineWidth = 1;
     ctx.beginPath();
 
