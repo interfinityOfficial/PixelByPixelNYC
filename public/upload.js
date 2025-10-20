@@ -217,7 +217,7 @@ async function uploadPhoto() {
 
     const options = {
         maxSizeMB: 1, // Maximum size 1MB
-        maxWidthOrHeight: 2000,
+        maxWidthOrHeight: 1500,
         useWebWorker: true,
     };
 
