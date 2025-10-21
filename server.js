@@ -180,7 +180,11 @@ app.get('/dashboard/', async (req, res) => {
     if (!user.isAdmin) {
         return res.status(403).json({ error: "Forbidden" });
     }
-    const photos = await prisma.photo.findMany();
+    const photos = await prisma.photo.findMany({
+        orderBy: {
+            createdAt: 'desc',
+        },
+    });
     res.render('dashboard.ejs', { user: user, photos: photos });
 });
 
