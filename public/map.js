@@ -1,7 +1,7 @@
 const MAP_COLS = 45;
 const MAP_ROWS = 54;
 const PIXEL_SIZE = 10;
-let MAX_SCALE = 20; // Will be updated in resizeCanvas
+let MAX_SCALE = 20;
 const ZOOM_FACTOR = 1.03;
 
 let mapData = [];
@@ -31,17 +31,14 @@ let initialPinchDistance = 0;
 let initialPinchCenter = { x: 0, y: 0 };
 let initialScale = 1;
 
-// Double-tap
 let lastTouchTime = 0;
 let lastTouchX = 0;
 let lastTouchY = 0;
 const DOUBLE_TAP_DELAY = 300;
 const DOUBLE_TAP_DISTANCE = 50;
 
-// Track if we were previously in multi-touch to prevent photo taps after pinch
 let wasMultiTouch = false;
 
-// Track potential photo tap that should trigger on touch end
 let pendingPhotoTap = null;
 
 // Pixel selection mode
@@ -52,14 +49,14 @@ let selectedPixel = null;
 // Drag detection for pixel selection
 let dragOccurred = false;
 let touchDragOccurred = false;
-const DRAG_THRESHOLD = 5; // Minimum pixels to move before considering it a drag
+const DRAG_THRESHOLD = 5;
 
-// Photo animation system
-let photoAnimations = new Map(); // Maps photo id to animation data
+// Photo animation
+let photoAnimations = new Map();
 let animationStartTime = null;
-const FADE_DURATION = 300; // Duration of fade-in in milliseconds
+const FADE_DURATION = 300;
 let isAnimatingPhotos = false;
-let hasInitiallyLoaded = false; // Track if photos have been initially loaded
+let hasInitiallyLoaded = false;
 
 function initializePhotoAnimations(photosList) {
     photoAnimations.clear();
@@ -69,7 +66,7 @@ function initializePhotoAnimations(photosList) {
     photosList.forEach(photo => {
         const photoKey = `${photo.imageX},${photo.imageY}`;
         photoAnimations.set(photoKey, {
-            delay: Math.random() * 1000, // Random delay up to 1 second
+            delay: Math.random() * 1000,
             startTime: null,
             alpha: 0
         });
@@ -100,7 +97,6 @@ function animatePhotos() {
                 const fadeElapsed = currentTime - anim.startTime;
                 const progress = Math.min(fadeElapsed / FADE_DURATION, 1);
 
-                // Ease out cubic for smooth fade
                 anim.alpha = 1 - Math.pow(1 - progress, 3);
             }
         }
@@ -140,12 +136,10 @@ function clampHexToHSL(hex, satRange = [40, 80], lightRange = [50, 80]) {
     s *= 100;
     l *= 100;
 
-    // Detect grays / near-grays
     if (s < 5) {
-        s = 0; // keep completely neutral
-        l = Math.min(Math.max(l, 45), 65); // normalize brightness
+        s = 0;
+        l = Math.min(Math.max(l, 45), 65);
     } else {
-        // Soft compression for colorful pixels
         const sMid = (satRange[0] + satRange[1]) / 2;
         const lMid = (lightRange[0] + lightRange[1]) / 2;
         const sFactor = 0.7, lFactor = 0.7;
@@ -175,7 +169,7 @@ function animateToOffsets(targetOffsetX, targetOffsetY, duration = 300) {
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
 
-        const easedProgress = 1 - Math.pow(1 - progress, 3); // Ease out cubic
+        const easedProgress = 1 - Math.pow(1 - progress, 3);
 
         offsetX = startOffsetX + (targetOffsetX - startOffsetX) * easedProgress;
         offsetY = startOffsetY + (targetOffsetY - startOffsetY) * easedProgress;
@@ -193,19 +187,17 @@ function animateToOffsets(targetOffsetX, targetOffsetY, duration = 300) {
     animationId = requestAnimationFrame(animate);
 }
 
-// Helper function to show photo view after image loads
+// Show photo view after image loads
 function showPhotoView(photo) {
     const imgElement = document.getElementById('photo-image');
     const img = new Image();
 
     img.onload = () => {
-        // Image loaded successfully, show the view
         imgElement.src = photo.imageHighRes;
         document.body.classList.add('show-photo-view');
     };
 
     img.onerror = () => {
-        // Image failed to load, could show error state or fallback
         console.warn('Failed to load high-res image:', photo.imageHighRes);
     };
 
@@ -218,14 +210,14 @@ function enterPixelSelectionMode() {
     isPixelSelectionMode = true;
     hoveredPixel = null;
     selectedPixel = null;
-    drawMap(mapData); // Redraw without photos
+    drawMap(mapData);
 }
 
 function exitPixelSelectionMode() {
     isPixelSelectionMode = false;
     hoveredPixel = null;
     selectedPixel = null;
-    drawMap(mapData); // Redraw with photos
+    drawMap(mapData);
 }
 
 function handlePixelSelection(x, y) {
@@ -247,7 +239,6 @@ function refreshPhotos() {
             }, 300);
             photos = data.photos;
 
-            // Ensure new photos have animation data (but fully visible)
             photos.forEach(photo => {
                 const photoKey = `${photo.imageX},${photo.imageY}`;
                 if (!photoAnimations.has(photoKey)) {
@@ -372,7 +363,6 @@ fetch("/assets/map_data.json")
     .then((res) => res.json())
     .then((data) => {
         mapData = data;
-        // Initial draw after data is loaded
 
         const cssDims = getCanvasCSSDimensions();
         offsetY = (cssDims.height - MAP_ROWS * PIXEL_SIZE * scale) / 2;
@@ -401,13 +391,12 @@ canvas.addEventListener('mousemove', e => {
         }
 
         document.body.classList.add('pointer-cursor');
-        drawMap(mapData); // Redraw to show hover effect
+        drawMap(mapData);
     } else {
         // Normal photo hover detection
         const mapX = Math.floor((cursorX - offsetX) / (PIXEL_SIZE * scale));
         const mapY = Math.floor((cursorY - offsetY) / (PIXEL_SIZE * scale));
 
-        // Check for photos within a 2-pixel radius for better targeting
         let photo = null;
         const touchTolerance = 0;
         for (let dx = -touchTolerance; dx <= touchTolerance && !photo; dx++) {
@@ -418,7 +407,6 @@ canvas.addEventListener('mousemove', e => {
             }
         }
 
-        // Change cursor style based on whether we're over a photo
         canvas.classList.toggle('zoom-cursor', !!photo);
     }
 });
@@ -426,7 +414,7 @@ canvas.addEventListener('mousemove', e => {
 // Mobile touch support
 canvas.addEventListener('touchstart', e => {
     e.preventDefault();
-    document.body.classList.remove('show-photo-view'); // Hide photo view on interaction
+    document.body.classList.remove('show-photo-view');
     const rect = getCanvasRect();
     const touch = e.touches[0];
     const currentTime = Date.now();
@@ -441,12 +429,10 @@ canvas.addEventListener('touchstart', e => {
 
     // Only check for double-tap when there's exactly 1 touch (avoid conflicts with pinch)
     if (e.touches.length === 1 && !wasMultiTouch) {
-        // First check if touch is on or near a photo (higher priority than double-tap)
         updateCursorPosition(touchX, touchY);
         const mapX = Math.floor((cursorX - offsetX) / (PIXEL_SIZE * scale));
         const mapY = Math.floor((cursorY - offsetY) / (PIXEL_SIZE * scale));
 
-        // Check for photos within a 2-pixel radius for better touch targeting
         let photo = null;
         const touchTolerance = 0;
         for (let dx = -touchTolerance; dx <= touchTolerance && !photo; dx++) {
@@ -458,11 +444,9 @@ canvas.addEventListener('touchstart', e => {
         }
 
         if (photo) {
-            // Store potential photo tap to trigger on touch end
             pendingPhotoTap = photo;
         }
 
-        // Not on a photo - check for double-tap
         const timeDiff = currentTime - lastTouchTime;
         const distance = Math.sqrt(
             Math.pow(touchX - lastTouchX, 2) +
@@ -470,14 +454,12 @@ canvas.addEventListener('touchstart', e => {
         );
 
         if (timeDiff < DOUBLE_TAP_DELAY && distance < DOUBLE_TAP_DISTANCE) {
-            // Double-tap detected - zoom in
             updateCursorPosition(touchX, touchY);
             const oldScale = scale;
             const newScale = Math.min(MAX_SCALE, scale * 2); // Zoom in by 2x
 
             performZoom(cursorX, cursorY, newScale, oldScale, true); // Enable animation
 
-            // Reset double-tap detection
             lastTouchTime = 0;
             return;
         }
@@ -493,8 +475,8 @@ canvas.addEventListener('touchstart', e => {
         dragStartX = touch.clientX - offsetX;
         dragStartY = touch.clientY - offsetY;
     } else if (e.touches.length === 2) {
-        // Two touches - start pinch zoom (skip double-tap detection)
-        isDragging = false; // Cancel dragging during pinch
+        // Two touches - skip double-tap detection
+        isDragging = false;
         const touch1 = e.touches[0];
         const touch2 = e.touches[1];
         initialPinchDistance = getTouchDistance(touch1, touch2);
@@ -522,7 +504,7 @@ canvas.addEventListener('touchmove', e => {
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
         if (distance > DRAG_THRESHOLD) {
-            touchDragOccurred = true; // Mark that touch dragging occurred
+            touchDragOccurred = true;
         }
 
         clampOffsets(touch.clientX - dragStartX, touch.clientY - dragStartY);
@@ -557,7 +539,7 @@ canvas.addEventListener('touchend', e => {
         if (isPixelSelectionMode) {
             // Don't select pixel if this was the end of a touch drag
             if (touchDragOccurred) {
-                touchDragOccurred = false; // Reset for next interaction
+                touchDragOccurred = false;
                 return;
             }
 
@@ -570,13 +552,13 @@ canvas.addEventListener('touchend', e => {
             if (mapX >= 0 && mapX < MAP_COLS && mapY >= 0 && mapY < MAP_ROWS) {
                 selectedPixel = { x: mapX, y: mapY };
                 document.body.classList.add('show-confirm');
-                drawMap(mapData); // Redraw to show selected pixel
+                drawMap(mapData);
                 handlePixelSelection(mapX, mapY);
             }
         } else if (pendingPhotoTap) {
             // Normal photo tap
             const photo = pendingPhotoTap;
-            pendingPhotoTap = null; // Clear it
+            pendingPhotoTap = null;
 
             // Photo tap detected - zoom in/out
             if (scale < MAX_SCALE) {
@@ -589,7 +571,7 @@ canvas.addEventListener('touchend', e => {
                 const centerX = (targetOffsetX - offsetX * MAX_SCALE / scale) / (1 - MAX_SCALE / scale);
                 const centerY = (targetOffsetY - offsetY * MAX_SCALE / scale) / (1 - MAX_SCALE / scale);
 
-                performZoom(centerX, centerY, newScale, oldScale, true, 500); // Enable animation
+                performZoom(centerX, centerY, newScale, oldScale, true, 500);
 
                 // Show photo view after zoom animation completes and image loads
                 setTimeout(() => {
@@ -607,7 +589,7 @@ canvas.addEventListener('touchend', e => {
                 // Show photo view after animation
                 setTimeout(() => {
                     showPhotoView(photo);
-                }, 300); // Shorter duration since we're not zooming
+                }, 300);
             }
         }
         return;
@@ -616,18 +598,18 @@ canvas.addEventListener('touchend', e => {
 
     isDragging = false;
     initialPinchDistance = 0;
-    wasMultiTouch = false; // Reset multi-touch flag
-    pendingPhotoTap = null; // Clear any pending photo tap
+    wasMultiTouch = false;
+    pendingPhotoTap = null;
 });
 
 function resizeCanvas() {
     const devicePixelRatio = window.devicePixelRatio || 1;
 
-    // Set canvas CSS size (display size)
+    // Set canvas CSS size
     canvas.style.width = window.innerWidth + 'px';
     canvas.style.height = window.innerHeight + 'px';
 
-    // Set canvas buffer size (actual pixels for crisp rendering)
+    // Set canvas buffer size
     canvas.width = window.innerWidth * devicePixelRatio;
     canvas.height = window.innerHeight * devicePixelRatio;
 
@@ -659,9 +641,9 @@ resizeCanvas();
 
 canvas.addEventListener('mousedown', e => {
     isDragging = true;
-    dragOccurred = false; // Reset drag detection
+    dragOccurred = false;
     document.body.classList.add('dragging-cursor');
-    document.body.classList.remove('show-photo-view'); // Hide photo view on interaction
+    document.body.classList.remove('show-photo-view');
     dragStartX = e.clientX - offsetX;
     dragStartY = e.clientY - offsetY;
 });
@@ -674,7 +656,7 @@ canvas.addEventListener('mousemove', e => {
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
         if (distance > DRAG_THRESHOLD) {
-            dragOccurred = true; // Mark that dragging actually occurred
+            dragOccurred = true;
         }
 
         clampOffsets(e.clientX - dragStartX, e.clientY - dragStartY);
@@ -696,12 +678,12 @@ canvas.addEventListener('mouseleave', () => {
 // Double-click to zoom in
 canvas.addEventListener('dblclick', e => {
     e.preventDefault();
-    document.body.classList.remove('show-photo-view'); // Hide photo view on interaction
+    document.body.classList.remove('show-photo-view');
     updateCursorPosition(e.clientX, e.clientY);
     const oldScale = scale;
     const newScale = Math.min(MAX_SCALE, scale * 2); // Zoom in by 2x
 
-    performZoom(cursorX, cursorY, newScale, oldScale, true); // Enable animation
+    performZoom(cursorX, cursorY, newScale, oldScale, true);
 });
 
 // Single click to zoom to photo or zoom out
@@ -723,7 +705,7 @@ canvas.addEventListener('click', e => {
         if (mapX >= 0 && mapX < MAP_COLS && mapY >= 0 && mapY < MAP_ROWS) {
             selectedPixel = { x: mapX, y: mapY };
             document.body.classList.add('show-confirm');
-            drawMap(mapData); // Redraw to show selected pixel
+            drawMap(mapData);
             handlePixelSelection(mapX, mapY);
         }
     } else {
@@ -752,7 +734,7 @@ canvas.addEventListener('click', e => {
                 const centerX = (targetOffsetX - offsetX * MAX_SCALE / scale) / (1 - MAX_SCALE / scale);
                 const centerY = (targetOffsetY - offsetY * MAX_SCALE / scale) / (1 - MAX_SCALE / scale);
 
-                performZoom(centerX, centerY, newScale, oldScale, true, 500); // Enable animation
+                performZoom(centerX, centerY, newScale, oldScale, true, 500);
 
                 // Show photo view after zoom animation completes and image loads
                 setTimeout(() => {
@@ -770,7 +752,7 @@ canvas.addEventListener('click', e => {
                 // Show photo view after animation
                 setTimeout(() => {
                     showPhotoView(photo);
-                }, 300); // Shorter duration since we're not zooming
+                }, 300);
             }
         }
     }
@@ -778,7 +760,7 @@ canvas.addEventListener('click', e => {
 
 canvas.addEventListener('wheel', e => {
     e.preventDefault();
-    document.body.classList.remove('show-photo-view'); // Hide photo view on interaction
+    document.body.classList.remove('show-photo-view');
     const zoom = e.deltaY < 0 ? ZOOM_FACTOR : 1 / ZOOM_FACTOR;
     const oldScale = scale;
 
@@ -905,7 +887,7 @@ function drawPhotos() {
         // Get animation alpha for this photo
         const photoKey = `${photo.imageX},${photo.imageY}`;
         const animData = photoAnimations.get(photoKey);
-        const animAlpha = animData ? animData.alpha : 1; // Default to 1 if no animation data
+        const animAlpha = animData ? animData.alpha : 1;
 
         // Always draw the base color block with animation alpha
         const prevAlpha = ctx.globalAlpha;
@@ -929,7 +911,7 @@ function drawPhotos() {
 
             if (img.complete && img.naturalWidth > 0) {
                 const prevAlpha = ctx.globalAlpha;
-                ctx.globalAlpha = fadeAlpha * animAlpha; // Combine both fade effects
+                ctx.globalAlpha = fadeAlpha * animAlpha;
                 ctx.drawImage(img, screenX, screenY, screenSize, screenSize);
                 ctx.globalAlpha = prevAlpha;
             }

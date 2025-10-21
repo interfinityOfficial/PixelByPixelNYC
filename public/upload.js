@@ -1,4 +1,3 @@
-// Handle drop to upload
 const uploadButton = document.getElementById('upload-button');
 const dropZone = document.getElementById('drop-zone');
 const dropZoneTextUpload = document.getElementById('drop-zone-text-upload');
