@@ -222,8 +222,8 @@ async function uploadPhoto() {
 
     try {
         const compressedFile = await imageCompression(croppedFile, options);
-        // console.log('Original:', (croppedFile.size / 1024 / 1024).toFixed(2), 'MB');
-        // console.log('Compressed:', (compressedFile.size / 1024 / 1024).toFixed(2), 'MB');
+        console.log('Original:', (croppedFile.size / 1024 / 1024).toFixed(2), 'MB');
+        console.log('Compressed:', (compressedFile.size / 1024 / 1024).toFixed(2), 'MB');
 
         uploadFile(compressedFile, selectedPixelData.x, selectedPixelData.y, (data) => {
             fileInput.value = '';
