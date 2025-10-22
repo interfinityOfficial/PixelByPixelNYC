@@ -243,37 +243,24 @@ async function uploadPhoto() {
 }
 
 function uploadFile(file, x, y, callback) {
-    const xhr = new XMLHttpRequest();
     const formData = new FormData();
     formData.append('image', file);
     formData.append('imageX', x);
     formData.append('imageY', y);
 
     try {
-        xhr.open('POST', '/upload/');
-
-        // Upload progress
-        // xhr.upload.addEventListener('progress', (e) => {
-        //     if (e.lengthComputable) {
-        //         const percent = (e.loaded / e.total) * 100;
-        //         console.log('Upload progress:', percent.toFixed(2));
-        //         document.documentElement.style.setProperty('--upload-progress', `${percent.toFixed(2)}%`);
-        //     }
-        // });
-
-        xhr.onerror = () => {
-            callback({ success: false, error: xhr.statusText });
-        };
-
-        xhr.onload = () => {
-            if (xhr.status === 200) {
-                callback({ success: true, data: JSON.parse(xhr.response) });
+        fetch('/upload/', {
+            method: 'POST',
+            body: formData,
+        }).then(response => response.json()).then(data => {
+            if (data.success) {
+                callback({ success: true, data: data });
             } else {
-                callback({ success: false, error: xhr.statusText });
+                callback({ success: false, error: data.error });
             }
-        };
-
-        xhr.send(formData);
+        }).catch(error => {
+            callback({ success: false, error: error.message });
+        });
     } catch (err) {
         callback({ success: false, error: err.message });
     }
