@@ -122,8 +122,10 @@ const upload = multer({
     },
     fileFilter: (req, file, cb) => {
         // Check if file is an image
+        const ext = path.extname(file.originalname).toLowerCase();
+        const name = path.basename(file.originalname, path.extname(file.originalname));
         if (file.mimetype.startsWith('image/')) {
-            cb(null, true);
+            cb(null, `${name}${ext}`);
         } else {
             cb(new Error('Only image files are allowed!'), false);
         }
