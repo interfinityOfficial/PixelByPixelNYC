@@ -121,11 +121,13 @@ const upload = multer({
         fileSize: 10 * 1024 * 1024,
     },
     fileFilter: (req, file, cb) => {
-        // Check if file is an image
+        // Force file extension to be lowercase
         const ext = path.extname(file.originalname).toLowerCase();
         const name = path.basename(file.originalname, path.extname(file.originalname));
+        // Check if file is an image
         if (file.mimetype.startsWith('image/')) {
             cb(null, `${name}${ext}`);
+            console.log(`${name}${ext}`);
         } else {
             cb(new Error('Only image files are allowed!'), false);
         }
