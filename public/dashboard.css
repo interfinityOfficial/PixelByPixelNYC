@@ -80,6 +80,10 @@ main::after {
   visibility: hidden;
 }
 
+.subtitle {
+  z-index: 10;
+}
+
 .logout-button {
   position: absolute;
   top: max(1vw, 12.5px);
