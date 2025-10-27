@@ -189,12 +189,38 @@ function animateToOffsets(targetOffsetX, targetOffsetY, duration = 300) {
 
 // Show photo view after image loads
 function showPhotoView(photo) {
+    const photoView = document.getElementById('photo-view');
     const imgElement = document.getElementById('photo-image');
     const img = new Image();
 
     img.onload = () => {
         imgElement.src = photo.imageHighRes;
         document.body.classList.add('show-photo-view');
+        if (photo.imageX == 0) {
+            if (photo.imageY == 0) {
+                photoView.style.transform = 'translate(0%, 0%)';
+                photoView.style.top = '0%';
+                photoView.style.left = '0%';
+            } else {
+                photoView.style.transform = 'translate(0%, -50%)';
+                photoView.style.top = '50%';
+                photoView.style.left = '0%';
+            }
+        } else if (photo.imageX == MAP_COLS - 1) {
+            if (photo.imageY == MAP_ROWS - 1) {
+                photoView.style.transform = 'translate(-100%, -100%)';
+                photoView.style.top = '100%';
+                photoView.style.left = '100%';
+            } else {
+                photoView.style.transform = 'translate(-50%, -100%)';
+                photoView.style.top = '50%';
+                photoView.style.left = '100%';
+            }
+        } else {
+            photoView.style.transform = 'translate(-50%, -50%)';
+            photoView.style.top = '50%';
+            photoView.style.left = '50%';
+        }
     };
 
     img.onerror = () => {
