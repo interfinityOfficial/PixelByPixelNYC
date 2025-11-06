@@ -462,6 +462,13 @@ body {
   font-family: "Tiny5";
 }
 
+.info-text a {
+  cursor: url("/assets/cursor-pointer.png"), pointer;
+  text-decoration: none;
+  color: #fff;
+  -webkit-text-stroke: max(min(0.44vw, 2px), 1px) #000;
+}
+
 .bottom {
   width: calc(100% - max(2.8vw, 35px));
   max-width: 600px;
