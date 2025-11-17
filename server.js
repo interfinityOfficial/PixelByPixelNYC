@@ -20,6 +20,8 @@ const app = express();
 const PORT = process.env.PORT || 3003;
 const prisma = new PrismaClient();
 
+app.set('trust proxy', true);
+
 // Helper function to decode base64url to buffer
 function base64URLStringToBuffer(base64URLString) {
     // Convert from base64url to base64
