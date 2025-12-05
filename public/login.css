@@ -150,6 +150,7 @@ input::placeholder {
   align-items: center;
   gap: 10px;
   font-size: max(min(4vw, 20px), 16px);
+  line-height: 1;
   cursor: url("/assets/cursor-pointer.png"), pointer;
   transition: opacity 0.3s ease-in-out;
 }
