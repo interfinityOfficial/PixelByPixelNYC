@@ -70,14 +70,23 @@ function originFor(c) {
 }
 
 app.get("/", async (c) => {
-  const session = await getSession(c);
-  let isAdmin = false;
-  if (session) {
-    const user = await getUserById(c.env.DB, session.userId);
-    isAdmin = Boolean(user?.isAdmin);
+  try {
+    if (!c.env.DB) {
+      console.error("Missing D1 binding env.DB");
+      return json({ error: "Database not configured" }, { status: 500 });
+    }
+    const session = await getSession(c);
+    let isAdmin = false;
+    if (session) {
+      const user = await getUserById(c.env.DB, session.userId);
+      isAdmin = Boolean(user?.isAdmin);
+    }
+    const photos = deduplicatePhotosByCoordinates(await listPhotos(c.env.DB));
+    return html(renderMain({ photos, isAdmin }));
+  } catch (error) {
+    console.error("GET / failed:", error);
+    return json({ error: "Internal Server Error", detail: String(error) }, { status: 500 });
   }
-  const photos = deduplicatePhotosByCoordinates(await listPhotos(c.env.DB));
-  return html(renderMain({ photos, isAdmin }));
 });
 
 app.get("/login/", async (c) => {

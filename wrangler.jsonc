@@ -28,9 +28,10 @@
 	},
 	"d1_databases": [
 		{
-			"binding": "pixelbypixel",
+			"binding": "DB",
 			"database_name": "pixelbypixel",
-			"database_id": "f38636b0-3a8a-4a35-93de-3ba1c6ffbf93"
+			"database_id": "f38636b0-3a8a-4a35-93de-3ba1c6ffbf93",
+			"migrations_dir": "migrations"
 		}
 	],
 	"r2_buckets": [
