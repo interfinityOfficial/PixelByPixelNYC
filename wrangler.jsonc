@@ -1,0 +1,51 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "pixelbypixel",
+	"main": "src/index.js",
+	"compatibility_date": "2026-08-07",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"assets": {
+		"directory": "./public",
+		"binding": "ASSETS",
+		// Run Worker first so /, /login/, /dashboard/ are dynamic (not static 404s)
+		"run_worker_first": true
+	},
+	"rules": [
+		{
+			"type": "Text",
+			"globs": [
+				"**/*.html"
+			],
+			"fallthrough": true
+		}
+	],
+	"vars": {
+		"RP_ID": "pixelbypixel.nyc",
+		"RP_NAME": "Pixel by Pixel NYC",
+		"R2_PUBLIC_URL": "https://cdn.pixelbypixel.nyc/storage"
+	},
+	"d1_databases": [
+		{
+			"binding": "pixelbypixel",
+			"database_name": "pixelbypixel",
+			"database_id": "f38636b0-3a8a-4a35-93de-3ba1c6ffbf93"
+		}
+	],
+	"r2_buckets": [
+		{
+			"binding": "PHOTOS",
+			"bucket_name": "pixelbypixel"
+		}
+	],
+	"kv_namespaces": [
+		{
+			"binding": "SESSIONS",
+			"id": "ab5325bdcf1b43cea7913ea0faea1b3e"
+		}
+	],
+	"observability": {
+		"enabled": true
+	}
+}

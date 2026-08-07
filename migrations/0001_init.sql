@@ -1,0 +1,30 @@
+CREATE TABLE IF NOT EXISTS Photo (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  key TEXT NOT NULL UNIQUE,
+  color TEXT NOT NULL,
+  imageHighRes TEXT NOT NULL,
+  imageLowRes TEXT NOT NULL,
+  imageX INTEGER NOT NULL,
+  imageY INTEGER NOT NULL,
+  clicks INTEGER NOT NULL DEFAULT 0,
+  createdAt TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS User (
+  id TEXT PRIMARY KEY NOT NULL,
+  username TEXT NOT NULL UNIQUE,
+  isAdmin INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS Credential (
+  id TEXT PRIMARY KEY NOT NULL,
+  credentialId TEXT NOT NULL UNIQUE,
+  publicKey TEXT NOT NULL,
+  counter INTEGER NOT NULL DEFAULT 0,
+  transports TEXT,
+  userId TEXT NOT NULL,
+  createdAt TEXT NOT NULL DEFAULT (datetime('now')),
+  FOREIGN KEY (userId) REFERENCES User(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_credential_userId ON Credential(userId);

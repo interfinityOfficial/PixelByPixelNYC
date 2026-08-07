@@ -101,7 +101,6 @@ window.addEventListener('dragover', e => {
     if (isFileDrag(e)) e.preventDefault();
 });
 
-// Handle dropped files
 window.addEventListener('drop', e => {
     if (!isFileDrag(e)) return;
     e.preventDefault();
@@ -129,7 +128,7 @@ function handleFiles(file) {
         return;
     }
 
-    if (file.size > 50 * 1024 * 1024) { // 50MB limit
+    if (file.size > 50 * 1024 * 1024) {
         showAlert('FILE TOO LARGE<br />MAX SIZE IS 50MB', "OK");
         document.body.classList.remove('highlight')
         return;
@@ -179,7 +178,6 @@ cropConfirmButton.addEventListener('click', () => {
 });
 
 function initiatePixelSelectionMode() {
-    // Hide cropper UI
     setTimeout(() => {
         if (cropper) {
             cropperImage.src = '';
@@ -191,19 +189,61 @@ function initiatePixelSelectionMode() {
     document.body.classList.remove('highlight')
     document.body.classList.remove('cropping')
 
-    // Enter pixel selection mode
     isSelectingPixel = true;
     document.body.classList.add('pixel-selection-mode');
 
-    // Tell map.js to enter pixel selection mode
     if (window.enterPixelSelectionMode) {
         window.enterPixelSelectionMode();
     }
 }
 
 function selectPixel(x, y) {
-    // Call the upload.js function
     selectedPixelData = { x, y };
+}
+
+function blobToArrayBuffer(blob) {
+    return blob.arrayBuffer();
+}
+
+async function sha256Hex(buffer) {
+    const hash = await crypto.subtle.digest('SHA-256', buffer);
+    return [...new Uint8Array(hash)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+function canvasToJpegBlob(canvas, quality) {
+    return new Promise((resolve, reject) => {
+        canvas.toBlob((blob) => {
+            if (!blob) reject(new Error('Failed to encode canvas'));
+            else resolve(blob);
+        }, 'image/jpeg', quality);
+    });
+}
+
+async function makeLowResBlob(file, maxSize = 200) {
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, maxSize / Math.max(bitmap.width, bitmap.height));
+    const width = Math.max(1, Math.round(bitmap.width * scale));
+    const height = Math.max(1, Math.round(bitmap.height * scale));
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(bitmap, 0, 0, width, height);
+    bitmap.close();
+    return canvasToJpegBlob(canvas, 0.6);
+}
+
+async function extractVibrantColor(file) {
+    if (typeof Vibrant === 'undefined' || !Vibrant.from) {
+        throw new Error('Vibrant library not loaded');
+    }
+    const url = URL.createObjectURL(file);
+    try {
+        const palette = await Vibrant.from(url).getPalette();
+        return palette.Vibrant?.hex || palette.Muted?.hex || '#808080';
+    } finally {
+        URL.revokeObjectURL(url);
+    }
 }
 
 async function uploadPhoto() {
@@ -215,53 +255,70 @@ async function uploadPhoto() {
     }
 
     const options = {
-        maxSizeMB: 1, // Maximum size 1MB
+        maxSizeMB: 1,
         maxWidthOrHeight: 1500,
         useWebWorker: true,
+        fileType: 'image/jpeg',
     };
 
     try {
         const compressedFile = await imageCompression(croppedFile, options);
+        const [lowResBlob, color, highResBuffer] = await Promise.all([
+            makeLowResBlob(compressedFile, 200),
+            extractVibrantColor(compressedFile),
+            blobToArrayBuffer(compressedFile),
+        ]);
+        const key = await sha256Hex(highResBuffer);
 
-        uploadFile(compressedFile, selectedPixelData.x, selectedPixelData.y, (data) => {
-            fileInput.value = '';
-            if (data.success) {
-                if (data.data.duplicate) {
-                    showAlert('THIS IMAGE ALREADY EXISTS<br />PLEASE UPLOAD A NEW IMAGE', "OK");
-                } else if (window.refreshPhotos) {
-                    window.refreshPhotos();
+        uploadFile(
+            compressedFile,
+            lowResBlob,
+            color,
+            key,
+            selectedPixelData.x,
+            selectedPixelData.y,
+            (data) => {
+                fileInput.value = '';
+                if (data.success) {
+                    if (data.data.duplicate) {
+                        showAlert('THIS IMAGE ALREADY EXISTS<br />PLEASE UPLOAD A NEW IMAGE', "OK");
+                    } else if (window.refreshPhotos) {
+                        window.refreshPhotos();
+                    }
+                } else {
+                    showAlert('UPLOAD FAILED<br />PLEASE TRY AGAIN', "OK");
                 }
-            } else {
-                showAlert('UPLOAD FAILED<br />PLEASE TRY AGAIN', "OK");
             }
-        });
+        );
     } catch (error) {
-        showAlert('PHOTO COMPRESSION FAILED<br />PLEASE TRY AGAIN', "OK");
+        console.error(error);
+        showAlert('PHOTO PROCESSING FAILED<br />PLEASE TRY AGAIN', "OK");
+        document.body.classList.remove('uploading');
     }
 }
 
-function uploadFile(file, x, y, callback) {
+function uploadFile(highResFile, lowResBlob, color, key, x, y, callback) {
     const formData = new FormData();
-    const name = file.name.replace(/\.[^/.]+$/, ext => ext.toLowerCase());
-    const normalizedFile = new File([file], name, { type: file.type });
-    formData.append('image', normalizedFile);
+    formData.append('highRes', new File([highResFile], 'high-res.jpg', { type: 'image/jpeg' }));
+    formData.append('lowRes', new File([lowResBlob], 'low-res.jpg', { type: 'image/jpeg' }));
+    formData.append('color', color);
+    formData.append('key', key);
     formData.append('imageX', x);
     formData.append('imageY', y);
 
-    try {
-        fetch('/upload/', {
-            method: 'POST',
-            body: formData,
-        }).then(response => response.json()).then(data => {
+    fetch('/upload/', {
+        method: 'POST',
+        body: formData,
+    })
+        .then((response) => response.json())
+        .then((data) => {
             if (data.success) {
                 callback({ success: true, data: data });
             } else {
                 callback({ success: false, error: data.error });
             }
-        }).catch(error => {
+        })
+        .catch((error) => {
             callback({ success: false, error: error.message });
         });
-    } catch (err) {
-        callback({ success: false, error: err.message });
-    }
 }

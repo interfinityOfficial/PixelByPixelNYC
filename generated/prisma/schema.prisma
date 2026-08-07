@@ -1,0 +1,28 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Image {
+  id               Int      @id @default(autoincrement())
+  originalFilename String   @map("original_filename")
+  lowResUrl        String   @map("low_res_url")
+  highResUrl       String   @map("high_res_url")
+  uploadedAt       DateTime @default(now()) @map("uploaded_at")
+  fileSizeBytes    Int?     @map("file_size_bytes")
+  widthOriginal    Int?     @map("width_original")
+  heightOriginal   Int?     @map("height_original")
+
+  @@map("images")
+}

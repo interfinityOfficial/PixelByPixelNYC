@@ -1,4 +1,6 @@
 const express = require("express");
+// LEGACY: Express/PM2 server. Production entry is now Cloudflare Worker `src/index.js`.
+// Kept temporarily for reference during migration cutover.
 const ejs = require("ejs");
 const multer = require("multer");
 const sharp = require("sharp");
