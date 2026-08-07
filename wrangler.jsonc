@@ -37,7 +37,7 @@
 	"r2_buckets": [
 		{
 			"binding": "PHOTOS",
-			"bucket_name": "pixelbypixel"
+			"bucket_name": "storage"
 		}
 	],
 	"kv_namespaces": [
