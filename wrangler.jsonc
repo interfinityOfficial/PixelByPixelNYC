@@ -24,7 +24,8 @@
 	"vars": {
 		"RP_ID": "pixelbypixel.nyc",
 		"RP_NAME": "Pixel by Pixel NYC",
-		"R2_PUBLIC_URL": "https://cdn.pixelbypixel.nyc/storage"
+		// CDN maps URL path → object key. Existing objects live under the "storage/" prefix.
+		"R2_PUBLIC_URL": "https://cdn.pixelbypixel.nyc"
 	},
 	"d1_databases": [
 		{

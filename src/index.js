@@ -164,8 +164,9 @@ app.post("/upload/", async (c) => {
     }
 
     const lowResBuffer = await lowRes.arrayBuffer();
-    const lowResKey = `low-res/${contentHash}.jpg`;
-    const highResKey = `high-res/${contentHash}.jpg`;
+    // Match legacy S3 uploads: objects live under storage/ inside the "storage" bucket
+    const lowResKey = `storage/low-res/${contentHash}.jpg`;
+    const highResKey = `storage/high-res/${contentHash}.jpg`;
 
     await Promise.all([
       c.env.PHOTOS.put(lowResKey, lowResBuffer, {
@@ -176,7 +177,10 @@ app.post("/upload/", async (c) => {
       }),
     ]);
 
-    const publicBase = (c.env.R2_PUBLIC_URL || "").replace(/\/$/, "");
+    const publicBase = (c.env.R2_PUBLIC_URL || "https://cdn.pixelbypixel.nyc").replace(
+      /\/$/,
+      ""
+    );
     const photo = await createPhoto(c.env.DB, {
       key: contentHash,
       color: color.toLowerCase(),
@@ -221,8 +225,8 @@ app.post("/delete-photo/", async (c) => {
 
     await deletePhoto(c.env.DB, photo.id);
     await Promise.all([
-      c.env.PHOTOS.delete(`high-res/${photo.key}.jpg`),
-      c.env.PHOTOS.delete(`low-res/${photo.key}.jpg`),
+      c.env.PHOTOS.delete(`storage/high-res/${photo.key}.jpg`),
+      c.env.PHOTOS.delete(`storage/low-res/${photo.key}.jpg`),
     ]);
     return json({ success: true });
   } catch (error) {
