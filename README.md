@@ -5,7 +5,7 @@ Cloudflare Workers app (Hono) with D1 metadata, R2 images, and browser-side imag
 ## Stack
 
 - **Worker** — Hono routes + HTML templates in `views/`
-- **D1** — Photo / User / Credential
+- **D1** (`pixelbypixel-db`) — Photo / User / Credential
 - **R2** — `high-res/` and `low-res/` objects (public CDN)
 - **KV** — WebAuthn login challenges
 - **Browser** — crop, compress, Vibrant color, SHA-256 hash, low-res canvas

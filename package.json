@@ -9,8 +9,8 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "db:migrate:local": "wrangler d1 migrations apply pixelbypixel --local",
-    "db:migrate:remote": "wrangler d1 migrations apply pixelbypixel --remote",
+    "db:migrate:local": "wrangler d1 migrations apply pixelbypixel-db --local",
+    "db:migrate:remote": "wrangler d1 migrations apply pixelbypixel-db --remote",
     "db:import:local": "node scripts/import-d1.mjs --local",
     "db:import:remote": "node scripts/import-d1.mjs --remote",
     "cf-typegen": "wrangler types"

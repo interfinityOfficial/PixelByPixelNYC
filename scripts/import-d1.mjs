@@ -63,7 +63,7 @@ console.log(`Importing ${users.length} users, ${credentials.length} credentials,
 
 const result = spawnSync(
   "npx",
-  ["wrangler", "d1", "execute", "pixelbypixel", mode, "--file", sqlFile],
+  ["wrangler", "d1", "execute", "pixelbypixel-db", mode, "--file", sqlFile],
   { cwd: root, stdio: "inherit", shell: process.platform === "win32" }
 );
 

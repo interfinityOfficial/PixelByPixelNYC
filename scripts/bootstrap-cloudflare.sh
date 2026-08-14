@@ -3,8 +3,8 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-echo "Creating D1 database 'pixelbypixel'..."
-npx wrangler d1 create pixelbypixel
+echo "Creating D1 database 'pixelbypixel-db'..."
+npx wrangler d1 create pixelbypixel-db
 
 echo
 echo "Creating KV namespace 'SESSIONS'..."
