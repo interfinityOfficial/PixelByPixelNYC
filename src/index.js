@@ -5,7 +5,7 @@ import {
 } from "@simplewebauthn/server";
 import {
   listPhotos,
-  listPhotosInBounds,
+  listPhotoPreviews,
   getPhotoByKey,
   getPhotoById,
   createPhoto,
@@ -228,9 +228,23 @@ async function handleGalleryPreview(c) {
     return galleryPreviewResponse(c, { error: bounds.error }, 400);
   }
 
-  const photos = deduplicatePhotosByCoordinates(
-    await listPhotosInBounds(c.env.DB, bounds)
-  ).slice(0, GALLERY_PREVIEW_MAX_PHOTOS);
+  const all = deduplicatePhotosByCoordinates(await listPhotoPreviews(c.env.DB));
+  let imagesLeft = GALLERY_PREVIEW_MAX_PHOTOS;
+  const photos = all.map((photo) => {
+    const inZoom =
+      photo.imageX >= bounds.minX &&
+      photo.imageX <= bounds.maxX &&
+      photo.imageY >= bounds.minY &&
+      photo.imageY <= bounds.maxY;
+    const includeImage = inZoom && imagesLeft > 0 && photo.imageLowRes;
+    if (includeImage) imagesLeft -= 1;
+    return {
+      imageX: photo.imageX,
+      imageY: photo.imageY,
+      color: photo.color,
+      ...(includeImage ? { imageLowRes: photo.imageLowRes } : {}),
+    };
+  });
 
   return galleryPreviewResponse(c, { bounds, photos });
 }

@@ -10,21 +10,17 @@ export async function listPhotos(db) {
 }
 
 /**
- * Preview fields only — no high-res URLs. SQL LIMIT is a safety cap;
- * callers should dedupe by cell then apply the public limit.
+ * Color + optional low-res URL for every cell. No high-res URLs.
+ * Callers should dedupe by cell, then strip imageLowRes outside the zoom window.
  * @param {D1Database} db
- * @param {{ minX: number, maxX: number, minY: number, maxY: number, limit?: number }} bounds
  */
-export async function listPhotosInBounds(db, { minX, maxX, minY, maxY, limit = 200 }) {
+export async function listPhotoPreviews(db) {
   const { results } = await db
     .prepare(
       `SELECT color, imageLowRes, imageX, imageY, createdAt
        FROM Photo
-       WHERE imageX >= ? AND imageX <= ? AND imageY >= ? AND imageY <= ?
-       ORDER BY createdAt DESC
-       LIMIT ?`
+       ORDER BY createdAt DESC`
     )
-    .bind(minX, maxX, minY, maxY, limit)
     .all();
   return (results || []).map((row) => ({
     color: row.color,
