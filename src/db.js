@@ -9,6 +9,31 @@ export async function listPhotos(db) {
   return (results || []).map(normalizePhoto);
 }
 
+/**
+ * Preview fields only — no high-res URLs. SQL LIMIT is a safety cap;
+ * callers should dedupe by cell then apply the public limit.
+ * @param {D1Database} db
+ * @param {{ minX: number, maxX: number, minY: number, maxY: number, limit?: number }} bounds
+ */
+export async function listPhotosInBounds(db, { minX, maxX, minY, maxY, limit = 200 }) {
+  const { results } = await db
+    .prepare(
+      `SELECT color, imageLowRes, imageX, imageY, createdAt
+       FROM Photo
+       WHERE imageX >= ? AND imageX <= ? AND imageY >= ? AND imageY <= ?
+       ORDER BY createdAt DESC
+       LIMIT ?`
+    )
+    .bind(minX, maxX, minY, maxY, limit)
+    .all();
+  return (results || []).map((row) => ({
+    color: row.color,
+    imageLowRes: row.imageLowRes,
+    imageX: Number(row.imageX),
+    imageY: Number(row.imageY),
+  }));
+}
+
 /** @param {D1Database} db */
 export async function getPhotoByKey(db, key) {
   const row = await db

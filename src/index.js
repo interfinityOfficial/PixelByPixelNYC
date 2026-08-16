@@ -5,6 +5,7 @@ import {
 } from "@simplewebauthn/server";
 import {
   listPhotos,
+  listPhotosInBounds,
   getPhotoByKey,
   getPhotoById,
   createPhoto,
@@ -119,6 +120,123 @@ app.get("/all-photos/", async (c) => {
   const photos = deduplicatePhotosByCoordinates(await listPhotos(c.env.DB));
   return json({ photos });
 });
+
+const MAP_MAX_X = 44;
+const MAP_MAX_Y = 53;
+const GALLERY_CARD_ASPECT = 4 / 3;
+const GALLERY_PREVIEW_MAX_PHOTOS = 40;
+const GALLERY_PREVIEW_ORIGINS = new Set([
+  "https://inthecreating.com",
+  "https://www.inthecreating.com",
+  "https://local.inthecreating.com",
+  "http://localhost:7758",
+  "http://127.0.0.1:7758",
+  "https://pixelbypixel.nyc",
+  "https://www.pixelbypixel.nyc",
+]);
+
+function parseIntParam(value, fallback) {
+  if (value == null || value === "") return fallback;
+  const n = Number.parseInt(String(value), 10);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function clampInt(n, min, max) {
+  return Math.min(max, Math.max(min, n));
+}
+
+function galleryPreviewCorsHeaders(origin) {
+  if (!origin || !GALLERY_PREVIEW_ORIGINS.has(origin)) return {};
+  return {
+    "Access-Control-Allow-Origin": origin,
+    "Access-Control-Allow-Methods": "GET, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Max-Age": "86400",
+    Vary: "Origin",
+  };
+}
+
+function galleryPreviewResponse(c, data, status = 200) {
+  return json(data, {
+    status,
+    headers: {
+      "Cache-Control": "public, max-age=300, s-maxage=300",
+      ...galleryPreviewCorsHeaders(c.req.header("Origin")),
+    },
+  });
+}
+
+/** Inclusive cell bounds for a focus pixel. padY=2 → 5 rows; padX covers a 4:3 card plus 1 cell of overscan. */
+function galleryPreviewBounds(query) {
+  const hasExplicit =
+    query.minX != null &&
+    query.maxX != null &&
+    query.minY != null &&
+    query.maxY != null;
+
+  if (hasExplicit) {
+    const minX = parseIntParam(query.minX, NaN);
+    const maxX = parseIntParam(query.maxX, NaN);
+    const minY = parseIntParam(query.minY, NaN);
+    const maxY = parseIntParam(query.maxY, NaN);
+    if ([minX, maxX, minY, maxY].some((n) => Number.isNaN(n))) {
+      return { error: "minX, maxX, minY, and maxY must be integers" };
+    }
+    if (minX > maxX || minY > maxY) {
+      return { error: "min bounds must be <= max bounds" };
+    }
+    return {
+      minX: clampInt(minX, 0, MAP_MAX_X),
+      maxX: clampInt(maxX, 0, MAP_MAX_X),
+      minY: clampInt(minY, 0, MAP_MAX_Y),
+      maxY: clampInt(maxY, 0, MAP_MAX_Y),
+    };
+  }
+
+  const x = parseIntParam(query.x, 8);
+  const y = parseIntParam(query.y, 31);
+  const padY = Math.max(0, parseIntParam(query.padY, 2));
+  const rows = padY * 2 + 1;
+  const defaultPadX = Math.ceil((rows * GALLERY_CARD_ASPECT - 1) / 2) + 1;
+  const padX = Math.max(0, parseIntParam(query.padX, defaultPadX));
+
+  return {
+    minX: clampInt(x - padX, 0, MAP_MAX_X),
+    maxX: clampInt(x + padX, 0, MAP_MAX_X),
+    minY: clampInt(y - padY, 0, MAP_MAX_Y),
+    maxY: clampInt(y + padY, 0, MAP_MAX_Y),
+  };
+}
+
+async function handleGalleryPreview(c) {
+  if (c.req.method === "OPTIONS") {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        "Cache-Control": "public, max-age=86400",
+        ...galleryPreviewCorsHeaders(c.req.header("Origin")),
+      },
+    });
+  }
+
+  if (!c.env.DB) {
+    return galleryPreviewResponse(c, { error: "Database not configured" }, 500);
+  }
+
+  const bounds = galleryPreviewBounds(c.req.query());
+  if (bounds.error) {
+    return galleryPreviewResponse(c, { error: bounds.error }, 400);
+  }
+
+  const photos = deduplicatePhotosByCoordinates(
+    await listPhotosInBounds(c.env.DB, bounds)
+  ).slice(0, GALLERY_PREVIEW_MAX_PHOTOS);
+
+  return galleryPreviewResponse(c, { bounds, photos });
+}
+
+app.on(["GET", "OPTIONS"], "/gallery-preview/", handleGalleryPreview);
+app.on(["GET", "OPTIONS"], "/gallery-preview", handleGalleryPreview);
 
 app.post("/upload/", async (c) => {
   try {
