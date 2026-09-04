@@ -129,6 +129,7 @@ const GALLERY_PREVIEW_ORIGINS = new Set([
   "https://inthecreating.com",
   "https://www.inthecreating.com",
   "https://local.inthecreating.com",
+  "https://dev.inthecreating.com",
   "http://localhost:7758",
   "http://127.0.0.1:7758",
   "https://pixelbypixel.nyc",
