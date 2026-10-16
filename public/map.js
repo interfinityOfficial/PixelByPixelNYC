@@ -253,6 +253,34 @@ function handlePixelSelection(x, y) {
     }
 }
 
+// Preselect a pixel (e.g. from photo GPS) and pan it into view.
+// Skipped if the user already picked one by hand.
+function suggestPixel(x, y) {
+    if (!isPixelSelectionMode || selectedPixel) return;
+
+    selectedPixel = { x, y };
+    document.body.classList.add('show-confirm');
+    handlePixelSelection(x, y);
+
+    const cssDims = getCanvasCSSDimensions();
+    const tileSize = PIXEL_SIZE * scale;
+    const screenX = x * tileSize + offsetX;
+    const screenY = y * tileSize + offsetY;
+    const margin = tileSize * 2;
+    const onScreen = screenX >= margin && screenX + tileSize <= cssDims.width - margin &&
+        screenY >= margin && screenY + tileSize <= cssDims.height - margin;
+
+    if (onScreen) {
+        drawMap(mapData);
+    } else {
+        animateToOffsets(
+            cssDims.width / 2 - (x + 0.5) * tileSize,
+            cssDims.height / 2 - (y + 0.5) * tileSize,
+            500
+        );
+    }
+}
+
 // Refresh photos from server
 function refreshPhotos() {
     fetch("/all-photos/")
@@ -287,6 +315,7 @@ function refreshPhotos() {
 window.enterPixelSelectionMode = enterPixelSelectionMode;
 window.exitPixelSelectionMode = exitPixelSelectionMode;
 window.handlePixelSelection = handlePixelSelection;
+window.suggestPixel = suggestPixel;
 window.refreshPhotos = refreshPhotos;
 
 // Zoom animation

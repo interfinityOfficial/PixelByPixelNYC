@@ -20,6 +20,7 @@ let cropper = null;
 let croppedFile = null;
 let isSelectingPixel = false;
 let selectedPixelData = null;
+let suggestedPixelPromise = null;
 
 const resizeObserver = new ResizeObserver((entries) => {
     dropZone.style.setProperty('--drop-zone-text-height', `${entries[0].contentRect.height}px`);
@@ -136,6 +137,10 @@ function handleFiles(file) {
 
     document.body.classList.add('cropping')
     currentFile = file;
+    // Read GPS from the original file now; cropping re-encodes and strips EXIF.
+    suggestedPixelPromise = window.locatePhotoPixel
+        ? window.locatePhotoPixel(file, mapData)
+        : Promise.resolve(null);
     const url = URL.createObjectURL(file);
     cropperImage.src = url;
 
@@ -194,6 +199,15 @@ function initiatePixelSelectionMode() {
 
     if (window.enterPixelSelectionMode) {
         window.enterPixelSelectionMode();
+    }
+
+    const pending = suggestedPixelPromise;
+    if (pending) {
+        pending.then((pixel) => {
+            if (pixel && isSelectingPixel && pending === suggestedPixelPromise && window.suggestPixel) {
+                window.suggestPixel(pixel.x, pixel.y);
+            }
+        });
     }
 }
 
