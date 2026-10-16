@@ -45,6 +45,7 @@ let pendingPhotoTap = null;
 let isPixelSelectionMode = false;
 let hoveredPixel = null;
 let selectedPixel = null;
+let suggestedPixel = null; // from photo GPS; stays marked even if the user picks elsewhere
 
 // Drag detection for pixel selection
 let dragOccurred = false;
@@ -236,6 +237,7 @@ function enterPixelSelectionMode() {
     isPixelSelectionMode = true;
     hoveredPixel = null;
     selectedPixel = null;
+    suggestedPixel = null;
     drawMap(mapData);
 }
 
@@ -243,6 +245,7 @@ function exitPixelSelectionMode() {
     isPixelSelectionMode = false;
     hoveredPixel = null;
     selectedPixel = null;
+    suggestedPixel = null;
     drawMap(mapData);
 }
 
@@ -256,7 +259,13 @@ function handlePixelSelection(x, y) {
 // Preselect a pixel (e.g. from photo GPS) and pan it into view.
 // Skipped if the user already picked one by hand.
 function suggestPixel(x, y) {
-    if (!isPixelSelectionMode || selectedPixel) return;
+    if (!isPixelSelectionMode) return;
+
+    suggestedPixel = { x, y };
+    if (selectedPixel) {
+        drawMap(mapData);
+        return;
+    }
 
     selectedPixel = { x, y };
     document.body.classList.add('show-confirm');
@@ -870,6 +879,28 @@ function drawMap(mapData) {
 
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(screenX, screenY, screenSize, screenSize);
+        }
+
+        // Ring marking the photo's GPS location: black on the white selected
+        // pixel, white once the user picks somewhere else
+        if (suggestedPixel) {
+            const { x, y } = suggestedPixel;
+            const screenX = Math.floor(x * PIXEL_SIZE * scale + offsetX);
+            const screenY = Math.floor(y * PIXEL_SIZE * scale + offsetY);
+            const screenSize = Math.ceil(PIXEL_SIZE * scale);
+            const isSelected = selectedPixel && selectedPixel.x === x && selectedPixel.y === y;
+
+            // Square ring: stroke and inset are each 1/7 of the pixel width.
+            // The stroke is centered on the path, so the path sits 1.5 units in.
+            const unit = screenSize / 7;
+            ctx.strokeStyle = isSelected ? '#000000' : '#ffffff';
+            ctx.lineWidth = unit;
+            ctx.strokeRect(
+                screenX + unit * 1.5,
+                screenY + unit * 1.5,
+                screenSize - unit * 3,
+                screenSize - unit * 3
+            );
         }
 
         // Draw hovered pixel highlight (on top of selected pixel if they're the same)
