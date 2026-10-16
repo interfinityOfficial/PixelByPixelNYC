@@ -11,8 +11,10 @@ const GEO_LAT0 = 40.75;
 const GEO_LNG0 = -73.95;
 const GEO_KM_X = 111.32 * Math.cos(GEO_LAT0 * Math.PI / 180);
 const GEO_KM_Y = 110.57;
-const GEO_SHORE_TOLERANCE_KM = 0.5; // photos taken on piers, bridges, ferries
-const GEO_MAX_SNAP_CELLS = 8;       // e.g. upper Bronx falls off the top of the map
+const GEO_WATER_RANGE_KM = 1.5;      // how far off shore a boat/bridge photo still counts
+const GEO_MAX_SNAP_CELLS = 8;        // e.g. upper Bronx falls off the top of the map
+const GEO_WATER_SNAP_CELLS = 3;      // rivers drawn narrower than reality
+const GEO_UNDRAWN_ISLAND_CELLS = 2;  // land this far from its drawn region stays on water
 
 let geoFitPromise = null;
 
@@ -57,13 +59,16 @@ function ringDistanceKm(ring, px, py) {
     return best;
 }
 
+// Returns { code, onLand } for the region a point belongs to, or null.
+// Points on water (boats, bridges, piers) count toward the nearest region
+// within GEO_WATER_RANGE_KM so they can land on the drawn rivers and harbor.
 function findRegion(fit, lat, lng) {
     for (const [code, rings] of Object.entries(fit.rings)) {
-        if (rings.some((ring) => ringContains(ring, lat, lng))) return code;
+        if (rings.some((ring) => ringContains(ring, lat, lng))) return { code, onLand: true };
     }
     const [px, py] = toKm(lat, lng);
     let nearest = null;
-    let nearestDist = GEO_SHORE_TOLERANCE_KM;
+    let nearestDist = GEO_WATER_RANGE_KM;
     for (const [code, rings] of Object.entries(fit.rings)) {
         for (const ring of rings) {
             const d = ringDistanceKm(ring, px, py);
@@ -73,33 +78,56 @@ function findRegion(fit, lat, lng) {
             }
         }
     }
-    return nearest;
+    return nearest ? { code: nearest, onLand: false } : null;
 }
 
-// Returns { x, y } grid cell for a lat/lng, or null if it's off the map.
-function latLngToPixel(fit, grid, lat, lng) {
-    const code = findRegion(fit, lat, lng);
-    if (!code) return null;
-
-    const [kx, ky] = toKm(lat, lng);
-    const p = fit.affine[code];
-    const col = p[0] * kx + p[1] * ky + p[2];
-    const row = p[3] * kx + p[4] * ky + p[5];
-
-    // Snap to the nearest cell drawn as the same region.
+function nearestCell(grid, col, row, code, maxDist) {
     let best = null;
-    let bestDist = GEO_MAX_SNAP_CELLS;
+    let bestDist = maxDist;
     for (let y = 0; y < grid.length; y++) {
         for (let x = 0; x < grid[y].length; x++) {
             if (grid[y][x] !== code) continue;
             const d = Math.hypot(x + 0.5 - col, y + 0.5 - row);
             if (d < bestDist) {
                 bestDist = d;
-                best = { x, y };
+                best = { x, y, dist: d };
             }
         }
     }
     return best;
+}
+
+// Returns { x, y } grid cell for a lat/lng, or null if it's off the map.
+function latLngToPixel(fit, grid, lat, lng) {
+    const region = findRegion(fit, lat, lng);
+    if (!region) return null;
+
+    const [kx, ky] = toKm(lat, lng);
+    const p = fit.affine[region.code];
+    const col = p[0] * kx + p[1] * ky + p[2];
+    const row = p[3] * kx + p[4] * ky + p[5];
+
+    const x = Math.floor(col);
+    const y = Math.floor(row);
+    const rawIsWater = y >= 0 && y < grid.length && x >= 0 && x < grid[y].length && grid[y][x] === 'w';
+    const toPixel = (cell) => (cell ? { x: cell.x, y: cell.y } : null);
+
+    if (region.onLand) {
+        // Snap to the nearest cell drawn as the same region, unless it's far
+        // away and the spot is drawn as water (islands the map leaves out,
+        // like Liberty Island).
+        const land = nearestCell(grid, col, row, region.code, GEO_MAX_SNAP_CELLS);
+        if (rawIsWater && (!land || land.dist > GEO_UNDRAWN_ISLAND_CELLS)) return { x, y };
+        return toPixel(land);
+    }
+
+    // On real water: keep it on a water pixel. The drawing narrows some
+    // rivers, so look for nearby water before falling back to the shore.
+    if (rawIsWater) return { x, y };
+    return toPixel(
+        nearestCell(grid, col, row, 'w', GEO_WATER_SNAP_CELLS) ||
+        nearestCell(grid, col, row, region.code, GEO_MAX_SNAP_CELLS)
+    );
 }
 
 // --- Minimal EXIF GPS reader (JPEG APP1 and PNG eXIf) ---

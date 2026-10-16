@@ -175,7 +175,7 @@ def main(geojson_path):
     for code, rs in rings.items():
         out_rings[code] = []
         for r in rs:
-            if area(r) < 0.1:  # drop tiny islands
+            if area(r) < 0.02:  # drop specks; keeps Liberty and Ellis Island
                 continue
             s = simplify(r, 0.08)
             latlng = np.c_[s[:, 1] / KY + LAT0, s[:, 0] / KX + LNG0]
